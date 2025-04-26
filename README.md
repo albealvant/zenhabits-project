@@ -3,8 +3,10 @@
 ## Diagrama de despliegue
 ```plantuml
 @startuml
-node "Dispositivo Móvil" {
-  component "ZENHABITS App"
+node "Dispositivo del usuario" {
+  component "ZENHABITS App" {
+    database "SQLite local"
+  }
 }
 
 node "Servidor Cloud" {
@@ -48,12 +50,13 @@ left to right direction
 actor User as u
 
 rectangle Zenhabits {
-  usecase "Iniciar sesión" as UC1
-  usecase "Crear/Modificar/Eliminar habitos, metas o tareas" as UC2
+  u --> (Iniciar sesión) 
+  u --> (Crear hábito/tarea/meta)
+  u --> (Editar o eliminar hábito/tarea/metas) 
+  u --> (Desbloquear logros)
+  u --> (Personalizar al personaje)
+  u --> (Gestionar o recibir notificaciones)
 }
-
-u --> UC1
-u --> UC2
 @enduml
 ```
 
