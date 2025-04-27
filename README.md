@@ -1,5 +1,10 @@
 ###### ALBA ALMORIL BENITO.
 # ZENHABITS
+> **NOTA**
+> Todos los diagramas se encuentran en `docs/img`
+## Diagrama de componentes
+
+
 ## Diagrama de despliegue
 ```plantuml
 @startuml
@@ -20,7 +25,6 @@ node "Servidor Cloud" {
 
 "ZENHABITS App" -- api : HTTPS (puerto 8000)\nFormato: JSON
 api -- mysql : TCP (3306)\nProtocolo: SQL
-
 @enduml
 ```
 
@@ -43,7 +47,7 @@ Por su parte, la app móvil establece la conexión con la API mediante HTTPS (pu
   - Pruebas de usabilidad.
 <br>
 
-## Diagrama de casos de uso (en proceso)
+## Diagrama de casos de uso
 ```plantuml
 @startuml
 left to right direction
@@ -62,6 +66,40 @@ rectangle Zenhabits {
 
 <br>
 
+## Diagrama de navegación
+> **INFO**
+> Versión más detallada en `docs/img`
+```plantuml
+@startuml
+left to right direction
+
+frame "Login/Registro" as Login {
+}
+
+frame "Pantalla Principal" as Principal {
+}
+
+frame "Crear Hábito" as CrearHabito {
+}
+
+frame "Tareas Diarias" as TareasDiarias {
+}
+
+frame "Metas" as Metas {
+}
+
+frame "Perfil Usuario" as Perfil {
+}
+
+Login --> Principal : iniciar sesión
+Principal --> CrearHabito : crear nuevo hábito
+Principal --> TareasDiarias : gestionar tareas
+Principal --> Metas : gestionar metas
+Principal --> Perfil : ver perfil
+
+@enduml
+```
+
 ## Modelo entidad-relación (ERD)
 Hecho en ERDPlus: https://erdplus.com/
-![erd]() Está en proceso...
+> (ubicado en `docs/img/MER.png`)
