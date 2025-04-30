@@ -38,13 +38,13 @@ Por su parte, la app móvil establece la conexión con la API mediante HTTPS (pu
   - Crear, modificar y eliminar hábitos, tareas y metas.
   - Asignar notificaciones.
   - Desbloquear logros.
-  - Personalizar personaje.
 * **No funcionales:**
   - Compatibilidad Android/iOS.
   - Funcionamiento offline con SQLite.
   - Interfaz intuitiva y minimalista.
   - Seguridad en la API con autenticación JWT.
   - Pruebas de usabilidad.
+  - Personalizar personaje.
 <br>
 
 ## Diagrama de casos de uso
