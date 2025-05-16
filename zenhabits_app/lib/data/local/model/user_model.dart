@@ -1,10 +1,10 @@
-class UsuarioModel {
+class UserModel {
   final int? idUsuario;
   final String nombre;
   final String email;
   final String passwordHash;
 
-  UsuarioModel({
+  UserModel({
     this.idUsuario,
     required this.nombre,
     required this.email,

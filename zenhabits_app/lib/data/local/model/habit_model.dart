@@ -1,11 +1,11 @@
-class Habit {
+class HabitModel {
   final int? idHabito;
   final String nombre;
   final String? descripcion;
   final String frecuencia;
   final int idUsuario;
 
-  Habit({
+  HabitModel({
     this.idHabito,
     required this.nombre,
     this.descripcion,
