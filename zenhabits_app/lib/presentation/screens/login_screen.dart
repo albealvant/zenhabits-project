@@ -11,14 +11,9 @@ class LoginScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'ZenHabits',
-              style: TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
-                color: Colors.orange,
-                fontFamily: 'Sans',
-              ),
+            Image.asset(
+              'assets/img/logoZenhabits.png',
+              height: 120,
             ),
             const SizedBox(height: 30),
             Container(
@@ -62,35 +57,35 @@ class LoginScreen extends StatelessWidget {
                       const Text('Recuérdame', style: TextStyle(color: Colors.white)),
                     ],
                   ),
-                     SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Text('Iniciar sesión', style: TextStyle(color: Colors.white)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
+                      child: const Text('Iniciar sesión', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
                     ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFFC66B),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFFC66B),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Text('Crear cuenta', style: TextStyle(color: Colors.white)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
+                      child: const Text('Crear cuenta', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
                     ),
+                  ),
                   const SizedBox(height: 12),
                   TextButton(
                     onPressed: () {},
