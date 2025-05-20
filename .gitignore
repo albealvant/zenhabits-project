@@ -1,1 +1,4 @@
+.env
 .vscode
+zenhabits_server/target/
+zenhabits_server/Cargo.lock
