@@ -9,22 +9,28 @@ class HabitRepository {
 
   Future<int> insertHabit(HabitModel habit) async {
     final habitEntity = Habit(
-      habitId: habit.idHabito,
-      name: habit.nombre,
-      description: habit.descripcion ?? "",
-      frecuency: habit.frecuencia,
-      userId: habit.idUsuario,
+      habitId: habit.habitId,
+      name: habit.name,
+      description: habit.description ?? "",
+      frequency: habit.frequency,
+      completed: habit.completed,
+      startDate: habit.startDate,
+      endDate: habit.endDate,
+      userId: habit.userId,
     );
     return await habitDao.insertHabit(habitEntity);
   }
 
   Future<void> updateHabit(HabitModel habit) async {
     final habitEntity = Habit(
-      habitId: habit.idHabito,
-      name: habit.nombre,
-      description: habit.descripcion ?? "",
-      frecuency: habit.frecuencia,
-      userId: habit.idUsuario,
+      habitId: habit.habitId,
+      name: habit.name,
+      description: habit.description ?? "",
+      frequency: habit.frequency,
+      completed: habit.completed,
+      startDate: habit.startDate,
+      endDate: habit.endDate,
+      userId: habit.userId,
     );
     await habitDao.updateHabit(habitEntity);
   }
@@ -32,21 +38,27 @@ class HabitRepository {
   Future<List<HabitModel>> getHabitsByUser(int userId) async {
     final habitEntities = await habitDao.findHabitsByUsuario(userId);
     return habitEntities.map((habit) => HabitModel(
-      idHabito: habit.habitId,
-      nombre: habit.name,
-      descripcion: habit.description,
-      frecuencia: habit.frecuency,
-      idUsuario: habit.userId,
+      habitId: habit.habitId,
+      name: habit.name,
+      description: habit.description,
+      frequency: habit.frequency,
+      completed: habit.completed,
+      startDate: habit.startDate,
+      endDate: habit.endDate,
+      userId: habit.userId,
     )).toList();
   }
 
   Future<void> deleteHabit(HabitModel habit) async {
     final habitEntity = Habit(
-      habitId: habit.idHabito,
-      name: habit.nombre,
-      description: habit.descripcion ?? "",
-      frecuency: habit.frecuencia,
-      userId: habit.idUsuario,
+      habitId: habit.habitId,
+      name: habit.name,
+      description: habit.description ?? "",
+      frequency: habit.frequency,
+      completed: habit.completed,
+      startDate: habit.startDate,
+      endDate: habit.endDate,
+      userId: habit.userId,
     );
     await habitDao.deleteHabit(habitEntity);
   }

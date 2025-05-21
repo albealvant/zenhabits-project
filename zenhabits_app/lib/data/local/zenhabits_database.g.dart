@@ -100,7 +100,7 @@ class _$ZenhabitsDatabase extends ZenhabitsDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `users` (`userId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `email` TEXT NOT NULL, `passwordHash` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `habits` (`habitId` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `frecuency` TEXT NOT NULL, `userId` INTEGER NOT NULL, FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON UPDATE NO ACTION ON DELETE CASCADE)');
+            'CREATE TABLE IF NOT EXISTS `habits` (`habitId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `frequency` TEXT NOT NULL, `completed` INTEGER NOT NULL, `startDate` INTEGER NOT NULL, `endDate` INTEGER NOT NULL, `userId` INTEGER NOT NULL, FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON UPDATE NO ACTION ON DELETE CASCADE)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -216,7 +216,10 @@ class _$HabitDao extends HabitDao {
                   'habitId': item.habitId,
                   'name': item.name,
                   'description': item.description,
-                  'frecuency': item.frecuency,
+                  'frequency': item.frequency,
+                  'completed': item.completed ? 1 : 0,
+                  'startDate': _dateTimeConverter.encode(item.startDate),
+                  'endDate': _dateTimeConverter.encode(item.endDate),
                   'userId': item.userId
                 }),
         _habitUpdateAdapter = UpdateAdapter(
@@ -227,7 +230,10 @@ class _$HabitDao extends HabitDao {
                   'habitId': item.habitId,
                   'name': item.name,
                   'description': item.description,
-                  'frecuency': item.frecuency,
+                  'frequency': item.frequency,
+                  'completed': item.completed ? 1 : 0,
+                  'startDate': _dateTimeConverter.encode(item.startDate),
+                  'endDate': _dateTimeConverter.encode(item.endDate),
                   'userId': item.userId
                 }),
         _habitDeletionAdapter = DeletionAdapter(
@@ -238,7 +244,10 @@ class _$HabitDao extends HabitDao {
                   'habitId': item.habitId,
                   'name': item.name,
                   'description': item.description,
-                  'frecuency': item.frecuency,
+                  'frequency': item.frequency,
+                  'completed': item.completed ? 1 : 0,
+                  'startDate': _dateTimeConverter.encode(item.startDate),
+                  'endDate': _dateTimeConverter.encode(item.endDate),
                   'userId': item.userId
                 });
 
@@ -258,10 +267,13 @@ class _$HabitDao extends HabitDao {
   Future<List<Habit>> findHabitsByUsuario(int userId) async {
     return _queryAdapter.queryList('SELECT * FROM habitos WHERE idUsuario = ?1',
         mapper: (Map<String, Object?> row) => Habit(
-            habitId: row['habitId'] as int?,
+            habitId: row['habitId'] as int,
             name: row['name'] as String,
             description: row['description'] as String,
-            frecuency: row['frecuency'] as String,
+            frequency: row['frequency'] as String,
+            completed: (row['completed'] as int) != 0,
+            startDate: _dateTimeConverter.decode(row['startDate'] as int),
+            endDate: _dateTimeConverter.decode(row['endDate'] as int),
             userId: row['userId'] as int),
         arguments: [userId]);
   }
@@ -270,10 +282,13 @@ class _$HabitDao extends HabitDao {
   Future<List<Habit>> findAllHabits() async {
     return _queryAdapter.queryList('SELECT * FROM habitos',
         mapper: (Map<String, Object?> row) => Habit(
-            habitId: row['habitId'] as int?,
+            habitId: row['habitId'] as int,
             name: row['name'] as String,
             description: row['description'] as String,
-            frecuency: row['frecuency'] as String,
+            frequency: row['frequency'] as String,
+            completed: (row['completed'] as int) != 0,
+            startDate: _dateTimeConverter.decode(row['startDate'] as int),
+            endDate: _dateTimeConverter.decode(row['endDate'] as int),
             userId: row['userId'] as int));
   }
 
@@ -293,3 +308,6 @@ class _$HabitDao extends HabitDao {
     await _habitDeletionAdapter.delete(habit);
   }
 }
+
+// ignore_for_file: unused_element
+final _dateTimeConverter = DateTimeConverter();

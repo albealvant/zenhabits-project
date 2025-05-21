@@ -14,12 +14,15 @@ import 'package:zenhabits_app/data/local/database/entities/user_entity.dart';
 )
 class Habit {
   @PrimaryKey(autoGenerate: true)
-  final int? habitId;
+  final int habitId;
 
   final String name;
   final String description;
-  final String frecuency;
+  final String frequency;
+  final bool completed;
+  final DateTime startDate;
+  final DateTime endDate;
   final int userId;
 
-  Habit({this.habitId, required this.name, required this.description, required this.frecuency, required this.userId});
+  Habit({required this.habitId, required this.name, required this.description, required this.frequency, required this.completed, required this.startDate, required this.endDate, required this.userId});
 }

@@ -1,15 +1,21 @@
 class HabitModel {
-  final int? idHabito;
-  final String nombre;
-  final String? descripcion;
-  final String frecuencia;
-  final int idUsuario;
+  final int habitId;
+  final String name;
+  final String? description;
+  final String frequency;
+  final bool completed;
+  final DateTime startDate;
+  final DateTime endDate;
+  final int userId;
 
   HabitModel({
-    this.idHabito,
-    required this.nombre,
-    this.descripcion,
-    required this.frecuencia,
-    required this.idUsuario,
+    required this.habitId,
+    required this.name,
+    this.description,
+    required this.frequency,
+    required this.completed,
+    required this.startDate,
+    required this.endDate,
+    required this.userId,
   });
 }
