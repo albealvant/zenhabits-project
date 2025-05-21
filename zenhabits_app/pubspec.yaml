@@ -68,7 +68,7 @@ flutter:
   assets:
     - assets/img/logoZenhabits.png
     - assets/img/character.png
-    - assets/img/createHabit.png
+    - assets/img/monkey.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
