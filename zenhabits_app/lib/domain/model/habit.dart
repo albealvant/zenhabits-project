@@ -1,13 +1,19 @@
 class Habit {
-  final String nombre;
-  final String? descripcion;
-  final String frecuencia;
-  final int idUsuario;
+  final String name;
+  final String? description;
+  final String frequency;
+  final bool completed;
+  final DateTime startDate;
+  final DateTime endDate;
+  final int userId;
 
   Habit({
-    required this.nombre,
-    this.descripcion,
-    required this.frecuencia,
-    required this.idUsuario,
+    required this.name,
+    this.description,
+    required this.frequency,
+    required this.completed,
+    required this.startDate,
+    required this.endDate,
+    required this.userId,
   });
 }
