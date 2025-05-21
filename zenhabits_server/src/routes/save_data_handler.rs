@@ -5,12 +5,12 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use reqwest::StatusCode;
-use sqlx::MySqlPool;
+use sqlx::{MySqlPool, Row};
 
-use crate::models::{habit::{self, Habit}, user::{self, User}};
+use crate::models::{habit::Habit, user::User};
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct Data {
     user: User,
     habits: Vec<Habit>
@@ -18,16 +18,24 @@ pub struct Data {
 
 pub async fn save_data(State(pool): State<MySqlPool>, Json(payload): Json<Data>) -> Response {
     let user = payload.user;
+    let habits = payload.habits;
+    let user_id = user.get_id();
 
-    match upsert_user(State(pool.clone()), user).await {
+    match upsert_user(State(pool.clone()), user.clone()).await {
         Ok(_) => (),
-        Err(_) => return (axum::http::StatusCode::INTERNAL_SERVER_ERROR, "[Database error]").into_response()
+        Err(e) => {
+            eprintln!("Error in upsert_user: {}", e);
+            return (axum::http::StatusCode::INTERNAL_SERVER_ERROR, format!("[Database error: {}]", e)).into_response();
+        }
     }
 
-    for habit in payload.habits {
-        
+    match upsert_habit(State(pool.clone()), habits, user_id).await {
+        Ok(_) => (),
+        Err(e) => {
+            eprintln!("Error in upsert_user: {}", e);
+            return (axum::http::StatusCode::INTERNAL_SERVER_ERROR, format!("[Database error: {}]", e)).into_response();
+        }
     }
-
 
     (axum::http::StatusCode::OK, "[INFO: Updated]").into_response()
 }
@@ -55,4 +63,57 @@ async fn upsert_user(State(pool): State<MySqlPool>, user: User) -> Result<(), sq
     Ok(())
 }
 
-//TO DO: upsert habit
+async fn upsert_habit(State(pool): State<MySqlPool>, habits: Vec<Habit>, user_id: &u32) -> Result<(), sqlx::Error> {
+    let current_rows = sqlx::query("SELECT habit_id FROM Habits WHERE user_id = ?")
+        .bind(user_id)
+        .fetch_all(&pool)
+        .await?;
+
+    let current_db_ids = current_rows
+        .iter()
+        .map(|row| row.try_get("habit_id").unwrap())
+        .collect::<Vec<u32>>();
+
+    let new_ids: Vec<u32> = habits.iter().map(|row| *row.get_habit_id()).collect::<Vec<u32>>();
+
+    for id in current_db_ids.clone() {
+        if !new_ids.contains(&id) {
+            sqlx::query("DELETE FROM Habits WHERE habit_id = ? AND user_id = ?")
+                .bind(id)
+                .bind(user_id)
+                .execute(&pool)
+                .await?;
+        }
+    }
+
+    for habit in habits {
+        let habit_id = habit.get_habit_id();
+        let name = habit.get_name();
+        let description = habit.get_description();
+        let frequency = habit.get_frequency();
+
+        let habit_exists = current_db_ids.contains(&habit_id);
+
+        if habit_exists {
+            sqlx::query("UPDATE Habits SET name = ?, description = ?, frequency = ? WHERE habit_id = ? AND user_id = ?")
+                .bind(habit_id)
+                .bind(name)
+                .bind(description)
+                .bind(frequency)
+                .bind(user_id)
+                .execute(&pool)
+                .await?;
+        } else {
+            sqlx::query("INSERT INTO Habits (habit_id, name, description, frequency, user_id) VALUES (?, ?, ?, ?, ?)")
+                .bind(habit_id)
+                .bind(name)
+                .bind(description)
+                .bind(frequency)
+                .bind(user_id)
+                .execute(&pool)
+                .await?;
+        }
+    }
+
+    Ok(())
+}
