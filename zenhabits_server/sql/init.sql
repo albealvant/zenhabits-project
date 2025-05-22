@@ -10,6 +10,9 @@ CREATE TABLE Habits (
     name VARCHAR(100) NOT NULL,
     description TEXT,
     frequency VARCHAR(50),
+    completed BOOLEAN NOT NULL,
+    start_date BIGINT NOT NULL,
+    end_date BIGINT NOT NULL,
     user_id INT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
         ON DELETE CASCADE

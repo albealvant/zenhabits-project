@@ -56,6 +56,9 @@ pub async fn load_data(State(pool): State<MySqlPool>, Json(payload): Json<User>)
                 row.get("name"),
                 row.try_get("description").ok(),
                 row.get("frequency"),
+                row.get("completed"),
+                row.get("start_date"),
+                row.get("end_date"),
                 row.get("user_id"),
             )
         })
