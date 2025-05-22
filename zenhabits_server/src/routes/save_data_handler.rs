@@ -1,19 +1,17 @@
 use axum::{
-    body::Body,
     extract::{Json, State},
-    http::HeaderMap,
     response::{IntoResponse, Response},
 };
-use reqwest::StatusCode;
-use sqlx::{MySqlPool, Row};
+
+use sqlx::{Error, MySqlPool, Row};
 
 use crate::models::{habit::Habit, user::User};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Data {
-    user: User,
-    habits: Vec<Habit>
+    pub user: User,
+    pub habits: Vec<Habit>
 }
 
 pub async fn save_data(State(pool): State<MySqlPool>, Json(payload): Json<Data>) -> Response {
@@ -23,6 +21,9 @@ pub async fn save_data(State(pool): State<MySqlPool>, Json(payload): Json<Data>)
 
     match upsert_user(State(pool.clone()), user.clone()).await {
         Ok(_) => (),
+        Err(Error::RowNotFound) => {
+            return (axum::http::StatusCode::CONFLICT, format!("[Database error: user already exists]")).into_response();
+        },
         Err(e) => {
             eprintln!("Error in upsert_user: {}", e);
             return (axum::http::StatusCode::INTERNAL_SERVER_ERROR, format!("[Database error: {}]", e)).into_response();
@@ -46,24 +47,23 @@ async fn upsert_user(State(pool): State<MySqlPool>, user: User) -> Result<(), sq
         .fetch_one(&pool)
         .await;
 
-    //TO DO: If user differs from db update it
-    if user_exist.is_err() { 
-        match sqlx::query("INSERT INTO Users VALUES (?, ?, ?, ?)")
-            .bind(user.get_id())
-            .bind(user.get_name())
-            .bind(user.get_email())
-            .bind(user.get_password())
-            .execute(&pool)
-            .await {
-                Ok(_) => return Ok(()),
-                Err(e) => return Err(e),
-            }
+    //TO DO: If user differs from db update it in the future
+    if user_exist.is_ok() {
+         return Err(Error::RowNotFound);
     }
+
+    sqlx::query("INSERT INTO Users VALUES (?, ?, ?, ?)")
+        .bind(user.get_id())
+        .bind(user.get_name())
+        .bind(user.get_email())
+        .bind(user.get_password())
+        .execute(&pool)
+        .await?;
 
     Ok(())
 }
 
-async fn upsert_habit(State(pool): State<MySqlPool>, habits: Vec<Habit>, user_id: &u32) -> Result<(), sqlx::Error> {
+async fn upsert_habit(State(pool): State<MySqlPool>, habits: Vec<Habit>, user_id: &i32) -> Result<(), sqlx::Error> {
     let current_rows = sqlx::query("SELECT habit_id FROM Habits WHERE user_id = ?")
         .bind(user_id)
         .fetch_all(&pool)
@@ -72,9 +72,9 @@ async fn upsert_habit(State(pool): State<MySqlPool>, habits: Vec<Habit>, user_id
     let current_db_ids = current_rows
         .iter()
         .map(|row| row.try_get("habit_id").unwrap())
-        .collect::<Vec<u32>>();
+        .collect::<Vec<i32>>();
 
-    let new_ids: Vec<u32> = habits.iter().map(|row| *row.get_habit_id()).collect::<Vec<u32>>();
+    let new_ids: Vec<i32> = habits.iter().map(|row| *row.get_habit_id()).collect::<Vec<i32>>();
 
     for id in current_db_ids.clone() {
         if !new_ids.contains(&id) {
@@ -96,10 +96,10 @@ async fn upsert_habit(State(pool): State<MySqlPool>, habits: Vec<Habit>, user_id
 
         if habit_exists {
             sqlx::query("UPDATE Habits SET name = ?, description = ?, frequency = ? WHERE habit_id = ? AND user_id = ?")
-                .bind(habit_id)
                 .bind(name)
                 .bind(description)
                 .bind(frequency)
+                .bind(habit_id)
                 .bind(user_id)
                 .execute(&pool)
                 .await?;
