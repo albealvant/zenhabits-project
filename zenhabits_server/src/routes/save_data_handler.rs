@@ -3,7 +3,7 @@ use axum::{
     response::{IntoResponse, Response},
 };
 
-use sqlx::{Error, MySqlPool, Row};
+use sqlx::{MySqlPool, Row};
 
 use crate::models::{habit::Habit, user::User};
 use serde::{Deserialize, Serialize};
@@ -21,9 +21,6 @@ pub async fn save_data(State(pool): State<MySqlPool>, Json(payload): Json<Data>)
 
     match upsert_user(State(pool.clone()), user.clone()).await {
         Ok(_) => (),
-        Err(Error::RowNotFound) => {
-            return (axum::http::StatusCode::CONFLICT, format!("[Database error: user already exists]")).into_response();
-        },
         Err(e) => {
             eprintln!("Error in upsert_user: {}", e);
             return (axum::http::StatusCode::INTERNAL_SERVER_ERROR, format!("[Database error: {}]", e)).into_response();
@@ -48,17 +45,15 @@ async fn upsert_user(State(pool): State<MySqlPool>, user: User) -> Result<(), sq
         .await;
 
     //TO DO: If user differs from db update it in the future
-    if user_exist.is_ok() {
-         return Err(Error::RowNotFound);
+    if user_exist.is_err() {
+        sqlx::query("INSERT INTO Users VALUES (?, ?, ?, ?)")
+            .bind(user.get_id())
+            .bind(user.get_name())
+            .bind(user.get_email())
+            .bind(user.get_password())
+            .execute(&pool)
+            .await?;
     }
-
-    sqlx::query("INSERT INTO Users VALUES (?, ?, ?, ?)")
-        .bind(user.get_id())
-        .bind(user.get_name())
-        .bind(user.get_email())
-        .bind(user.get_password())
-        .execute(&pool)
-        .await?;
 
     Ok(())
 }
@@ -92,23 +87,29 @@ async fn upsert_habit(State(pool): State<MySqlPool>, habits: Vec<Habit>, user_id
         let description = habit.get_description();
         let frequency = habit.get_frequency();
 
-        let habit_exists = current_db_ids.contains(&habit_id);
+        let habit_exists = current_db_ids.contains(habit_id);
 
         if habit_exists {
-            sqlx::query("UPDATE Habits SET name = ?, description = ?, frequency = ? WHERE habit_id = ? AND user_id = ?")
+            sqlx::query("UPDATE Habits SET name = ?, description = ?, frequency = ?, completed = ?, start_date = ?, end_date = ? WHERE habit_id = ? AND user_id = ?")
                 .bind(name)
                 .bind(description)
                 .bind(frequency)
+                .bind(habit.get_completed())
+                .bind(habit.get_start_date())
+                .bind(habit.get_end_date())
                 .bind(habit_id)
                 .bind(user_id)
                 .execute(&pool)
                 .await?;
         } else {
-            sqlx::query("INSERT INTO Habits (habit_id, name, description, frequency, user_id) VALUES (?, ?, ?, ?, ?)")
+            sqlx::query("INSERT INTO Habits (habit_id, name, description, frequency, completed, start_date, end_date, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
                 .bind(habit_id)
                 .bind(name)
                 .bind(description)
                 .bind(frequency)
+                .bind(habit.get_completed())
+                .bind(habit.get_start_date())
+                .bind(habit.get_end_date())
                 .bind(user_id)
                 .execute(&pool)
                 .await?;
