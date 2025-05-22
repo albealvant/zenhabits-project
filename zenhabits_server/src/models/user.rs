@@ -2,14 +2,14 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Clone)]
 pub struct User {
-    user_id: u32,
+    user_id: i32,
     name: String,
     email: String,
     password: String
 }
 
 impl User {
-    pub fn new(user_id: u32, name: String, email: String, password: String) -> Self {
+    pub fn new(user_id: i32, name: String, email: String, password: String) -> Self {
         User {
             user_id,
             name,
@@ -24,7 +24,7 @@ impl User {
             && !self.password.trim().is_empty()
     }
 
-    pub fn get_id(&self) -> &u32 {
+    pub fn get_id(&self) -> &i32 {
         &self.user_id
     }
 
