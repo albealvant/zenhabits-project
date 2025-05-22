@@ -10,6 +10,7 @@ use crate::db::get_db_connection;
 use crate::routes::check_handler::check;
 use crate::routes::save_data_handler::save_data;
 use crate::routes::load_data_handler::load_data;
+use crate::routes::delete_user_handler::delete_user;
 
 #[tokio::main]
 async fn main() {
@@ -20,6 +21,7 @@ async fn main() {
         .route("/", get(check))
         .route("/save", post(save_data))
         .route("/load", post(load_data))
+        .route("/delete/:id", post(delete_user))
         .with_state(pool);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
