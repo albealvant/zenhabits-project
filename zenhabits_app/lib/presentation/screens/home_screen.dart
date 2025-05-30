@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:zenhabits_app/domain/model/habit.dart';
+import 'package:zenhabits_app/presentation/viewmodels/habit_view_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -9,6 +12,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    final habitViewModel = Provider.of<HabitViewModel>(context, listen: false);
+    habitViewModel.getHabits(0); // Carga hábitos para usuario 0 inicialmente
+  }
 
   void _onItemTapped(int index) {
     if (index == 3) {
@@ -24,12 +34,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final habitViewModel = Provider.of<HabitViewModel>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFffead2),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header usuario
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
               child: Row(
@@ -71,31 +84,94 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
+
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Text('HÁBITOS', style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold, color: Colors.brown)),
             ),
+
             Expanded(
-              child: ListView.builder(
-                itemCount: 5,
-                itemBuilder: (context, index) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.orange.shade200),
-                    ),
-                    child: ListTile(
-                      leading: const Icon(Icons.check_box_outline_blank, color: Colors.brown),
-                      title: const Text('Hábito', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
-                      subtitle: const Text('Descripción'),
-                      trailing: const Icon(Icons.delete, color: Colors.orange),
-                    ),
-                  ),
-                ),
+              child: ValueListenableBuilder<List<Habit>>(
+                valueListenable: habitViewModel.habitos,
+                builder: (context, habitos, _) {
+                  if (habitos.isEmpty) {
+                    return const Center(child: Text('No tienes hábitos aún.'));
+                  }
+                  return ListView.builder(
+                    itemCount: habitos.length,
+                    itemBuilder: (context, index) {
+                      final habit = habitos[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.orange.shade200),
+                          ),
+                          child: ListTile(
+                            leading: Checkbox(
+                              value: habit.completed,
+                              onChanged: (bool? value) async {
+                                final updatedHabit = Habit(
+                                  habitId: habit.habitId,
+                                  name: habit.name,
+                                  description: habit.description,
+                                  frequency: habit.frequency,
+                                  completed: value ?? false,
+                                  startDate: habit.startDate,
+                                  endDate: habit.endDate,
+                                  userId: habit.userId,
+                                );
+                                await habitViewModel.updateHabit(updatedHabit);
+                                await habitViewModel.getHabits(habit.userId);
+                              },
+                            ),
+                            title: Opacity(
+                              opacity: habit.completed ? 0.5 : 1.0,
+                              child: Text(
+                                habit.name,
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                              ),
+                            ),
+                            subtitle: Opacity(
+                              opacity: habit.completed ? 0.5 : 1.0,
+                              child: Text(habit.description ?? ''),
+                            ),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.orange),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('¿Eliminar hábito?'),
+                                    content: const Text('Esta acción no se puede deshacer.'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.of(ctx).pop(),
+                                        child: const Text('Cancelar'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          Navigator.of(ctx).pop();
+                                          await habitViewModel.deleteHabit(habit);
+                                          await habitViewModel.getHabits(habit.userId);
+                                        },
+                                        child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
-            )
+            ),
           ],
         ),
       ),
