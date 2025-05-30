@@ -17,7 +17,7 @@ void main() {
         .inMemoryDatabaseBuilder()
         .build();
 
-    await tester.pumpWidget(ZenHabitsApp(database: database));
+    await tester.pumpWidget(ZenHabitsApp());
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

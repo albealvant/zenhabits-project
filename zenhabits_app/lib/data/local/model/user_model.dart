@@ -1,12 +1,12 @@
 class UserModel {
-  final int? idUsuario;
-  final String nombre;
+  final int? userId;
+  final String name;
   final String email;
   final String passwordHash;
 
   UserModel({
-    this.idUsuario,
-    required this.nombre,
+    this.userId,
+    required this.name,
     required this.email,
     required this.passwordHash,
   });

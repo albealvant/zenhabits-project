@@ -9,8 +9,8 @@ class UserRepository {
 
   Future<void> insertUser(UserModel user) async {
     final userEntity = User(
-      user.idUsuario ?? 0,
-      user.nombre,
+      user.userId ?? 0,
+      user.name,
       user.email,
       user.passwordHash,
     );
@@ -19,32 +19,37 @@ class UserRepository {
 
   Future<void> updateUser(UserModel user) async {
     final userEntity = User(
-      user.idUsuario ?? 0,  
-      user.nombre,
+      user.userId ?? 0,  
+      user.name,
       user.email,
       user.passwordHash,
     );
     await userDao.updateUsuario(userEntity);
   }
 
-  Future<UserModel?> getUserById(int id) async {
-    final user = await userDao.findUserById(id);
-    if (user != null) {
-      return UserModel(
-        idUsuario: user.userId,
-        nombre: user.name,
-        email: user.email,
-        passwordHash: user.passwordHash,
-      );
+  Future<UserModel?> getUserById(UserModel user) async {
+    if (user.userId != null) {
+      final userEntity = await userDao.findUserById(user.userId!);
+      if (userEntity != null) {
+        return UserModel(
+          userId: userEntity.userId,
+          name: userEntity.name,
+          email: userEntity.email,
+          passwordHash: userEntity.passwordHash,
+        );
+      } else {
+        return null;
+      }
+    } else {
+      throw Exception("El usuario no tiene un ID válido para buscarse.");
     }
-    return null;
   }
 
   Future<List<UserModel>> getAllUsers() async {
     final users = await userDao.findAllUsers();
     return users.map((user) => UserModel(
-      idUsuario: user.userId,
-      nombre: user.name,
+      userId: user.userId,
+      name: user.name,
       email: user.email,
       passwordHash: user.passwordHash,
     )).toList();
@@ -52,8 +57,8 @@ class UserRepository {
 
   Future<void> deleteUser(UserModel usuario) async {
     final userEntity = User(
-      usuario.idUsuario ?? 0,
-      usuario.nombre,
+      usuario.userId ?? 0,
+      usuario.name,
       usuario.email,
       usuario.passwordHash,
     );

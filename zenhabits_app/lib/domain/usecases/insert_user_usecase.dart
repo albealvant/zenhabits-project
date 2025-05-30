@@ -7,9 +7,18 @@ class InsertUserUseCase {
 
   InsertUserUseCase({required this.repository});
 
+  UserModel _toUserModel(User user) {
+    return UserModel(
+      name: user.name,
+      email: user.email,
+      passwordHash: user.password,
+    );
+  }
+
   Future<void> call(User user) async {
     try {
-      await repository.insertUser(user as UserModel);
+      final userModel = _toUserModel(user);
+      await repository.insertUser(userModel);
     } catch (e) {
       throw Exception('Error al crear la cuenta de usuario: ${e.toString()}');
     }
