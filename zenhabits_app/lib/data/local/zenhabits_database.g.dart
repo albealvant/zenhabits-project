@@ -98,9 +98,13 @@ class _$ZenhabitsDatabase extends ZenhabitsDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `users` (`userId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `email` TEXT NOT NULL, `passwordHash` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `users` (`userId` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `email` TEXT NOT NULL, `passwordHash` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `habits` (`habitId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `frequency` TEXT NOT NULL, `completed` INTEGER NOT NULL, `startDate` INTEGER NOT NULL, `endDate` INTEGER NOT NULL, `userId` INTEGER NOT NULL, FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON UPDATE NO ACTION ON DELETE CASCADE)');
+            'CREATE TABLE IF NOT EXISTS `habits` (`habitId` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `description` TEXT, `frequency` TEXT NOT NULL, `completed` INTEGER NOT NULL, `startDate` INTEGER NOT NULL, `endDate` INTEGER NOT NULL, `userId` INTEGER NOT NULL, FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON UPDATE NO ACTION ON DELETE CASCADE)');
+        await database.execute(
+            'CREATE UNIQUE INDEX `index_users_name` ON `users` (`name`)');
+        await database.execute(
+            'CREATE UNIQUE INDEX `index_users_email` ON `users` (`email`)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -171,7 +175,7 @@ class _$UserDao extends UserDao {
     return _queryAdapter.query(
         'SELECT username FROM usuarios WHERE idUsuario = ?1',
         mapper: (Map<String, Object?> row) => User(
-            row['userId'] as int,
+            row['userId'] as int?,
             row['name'] as String,
             row['email'] as String,
             row['passwordHash'] as String),
@@ -182,7 +186,7 @@ class _$UserDao extends UserDao {
   Future<List<User>> findAllUsers() async {
     return _queryAdapter.queryList('SELECT username FROM usuarios',
         mapper: (Map<String, Object?> row) => User(
-            row['userId'] as int,
+            row['userId'] as int?,
             row['name'] as String,
             row['email'] as String,
             row['passwordHash'] as String));
@@ -235,20 +239,6 @@ class _$HabitDao extends HabitDao {
                   'startDate': _dateTimeConverter.encode(item.startDate),
                   'endDate': _dateTimeConverter.encode(item.endDate),
                   'userId': item.userId
-                }),
-        _habitDeletionAdapter = DeletionAdapter(
-            database,
-            'habits',
-            ['habitId'],
-            (Habit item) => <String, Object?>{
-                  'habitId': item.habitId,
-                  'name': item.name,
-                  'description': item.description,
-                  'frequency': item.frequency,
-                  'completed': item.completed ? 1 : 0,
-                  'startDate': _dateTimeConverter.encode(item.startDate),
-                  'endDate': _dateTimeConverter.encode(item.endDate),
-                  'userId': item.userId
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -261,35 +251,39 @@ class _$HabitDao extends HabitDao {
 
   final UpdateAdapter<Habit> _habitUpdateAdapter;
 
-  final DeletionAdapter<Habit> _habitDeletionAdapter;
-
   @override
   Future<List<Habit>> findHabitsByUsuario(int userId) async {
-    return _queryAdapter.queryList('SELECT * FROM habitos WHERE idUsuario = ?1',
+    return _queryAdapter.queryList('SELECT * FROM habits WHERE userid = ?1',
         mapper: (Map<String, Object?> row) => Habit(
-            habitId: row['habitId'] as int,
-            name: row['name'] as String,
-            description: row['description'] as String,
-            frequency: row['frequency'] as String,
-            completed: (row['completed'] as int) != 0,
-            startDate: _dateTimeConverter.decode(row['startDate'] as int),
-            endDate: _dateTimeConverter.decode(row['endDate'] as int),
-            userId: row['userId'] as int),
+            row['habitId'] as int?,
+            row['name'] as String,
+            row['description'] as String?,
+            row['frequency'] as String,
+            (row['completed'] as int) != 0,
+            _dateTimeConverter.decode(row['startDate'] as int),
+            _dateTimeConverter.decode(row['endDate'] as int),
+            row['userId'] as int),
         arguments: [userId]);
   }
 
   @override
   Future<List<Habit>> findAllHabits() async {
-    return _queryAdapter.queryList('SELECT * FROM habitos',
+    return _queryAdapter.queryList('SELECT * FROM habits',
         mapper: (Map<String, Object?> row) => Habit(
-            habitId: row['habitId'] as int,
-            name: row['name'] as String,
-            description: row['description'] as String,
-            frequency: row['frequency'] as String,
-            completed: (row['completed'] as int) != 0,
-            startDate: _dateTimeConverter.decode(row['startDate'] as int),
-            endDate: _dateTimeConverter.decode(row['endDate'] as int),
-            userId: row['userId'] as int));
+            row['habitId'] as int?,
+            row['name'] as String,
+            row['description'] as String?,
+            row['frequency'] as String,
+            (row['completed'] as int) != 0,
+            _dateTimeConverter.decode(row['startDate'] as int),
+            _dateTimeConverter.decode(row['endDate'] as int),
+            row['userId'] as int));
+  }
+
+  @override
+  Future<void> deleteHabitById(int id) async {
+    await _queryAdapter.queryNoReturn('DELETE FROM habits WHERE habitId = ?1',
+        arguments: [id]);
   }
 
   @override
@@ -301,11 +295,6 @@ class _$HabitDao extends HabitDao {
   @override
   Future<void> updateHabit(Habit habit) async {
     await _habitUpdateAdapter.update(habit, OnConflictStrategy.abort);
-  }
-
-  @override
-  Future<void> deleteHabit(Habit habit) async {
-    await _habitDeletionAdapter.delete(habit);
   }
 }
 

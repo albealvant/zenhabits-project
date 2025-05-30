@@ -9,12 +9,12 @@ abstract class HabitDao {
   @update
   Future<void> updateHabit(Habit habit);
 
-  @Query('SELECT * FROM habitos WHERE idUsuario = :userId')
+  @Query('SELECT * FROM habits WHERE userid = :userId')
   Future<List<Habit>> findHabitsByUsuario(int userId);
 
-  @Query('SELECT * FROM habitos')
+  @Query('SELECT * FROM habits')
   Future<List<Habit>> findAllHabits();
-
-  @delete
-  Future<void> deleteHabit(Habit habit);
+ 
+  @Query('DELETE FROM habits WHERE habitId = :id')
+  Future<void> deleteHabitById(int id);
 }

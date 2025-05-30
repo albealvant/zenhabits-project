@@ -7,9 +7,23 @@ class DeleteHabitUsecase {
 
   DeleteHabitUsecase ({required this.repository});
 
+    HabitModel _toHabitModel(Habit habit) {
+      return HabitModel(
+        habitId: habit.habitId,
+        name: habit.name,
+        description: habit.description,
+        frequency: habit.frequency,
+        completed: habit.completed,
+        startDate: habit.startDate,
+        endDate: habit.endDate,
+        userId: habit.userId,
+      );
+    }
+
   Future<void> call(Habit habit) async {
     try {
-      await repository.deleteHabit(habit as HabitModel);
+      final habitModel = _toHabitModel(habit);
+      await repository.deleteHabit(habitModel);
     } catch (e) {
       throw Exception('Error al eliminar el hábito: ${e.toString()}');
     }
