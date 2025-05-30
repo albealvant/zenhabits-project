@@ -1,4 +1,3 @@
-import 'package:zenhabits_app/data/local/model/habit_model.dart';
 import 'package:zenhabits_app/data/local/repositories/habits_repository.dart';
 import 'package:zenhabits_app/domain/model/habit.dart';
 
@@ -7,10 +6,19 @@ class GetHabitsUseCase {
 
   GetHabitsUseCase({required this.repository});
 
-  Future<List<HabitModel>> call(int userId) async { //FIXME: Deberia devolver Habit de daomain, hacer merge de data-local-layer para poder corregirlo
+  Future<List<Habit>> call(int userId) async {
     try {
       final habits = await repository.getHabitsByUser(userId);
-      return habits; 
+      return habits.map((h) => Habit(
+        habitId: h.habitId,
+        name: h.name,
+        description: h.description,
+        frequency: h.frequency,
+        completed: h.completed,
+        startDate: h.startDate,
+        endDate: h.endDate,
+        userId: h.userId,
+      )).toList();
     } catch (e) {
       throw Exception('Error al obtener los hábitos: ${e.toString()}');
     }

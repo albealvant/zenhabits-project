@@ -1,5 +1,5 @@
 class HabitModel {
-  final int habitId;
+  final int? habitId;
   final String name;
   final String? description;
   final String frequency;
@@ -9,7 +9,7 @@ class HabitModel {
   final int userId;
 
   HabitModel({
-    required this.habitId,
+    this.habitId,
     required this.name,
     this.description,
     required this.frequency,

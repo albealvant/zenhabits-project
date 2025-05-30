@@ -1,4 +1,5 @@
 class Habit {
+  int? habitId;
   final String name;
   final String? description;
   final String frequency;
@@ -8,6 +9,7 @@ class Habit {
   final int userId;
 
   Habit({
+    this.habitId,
     required this.name,
     this.description,
     required this.frequency,

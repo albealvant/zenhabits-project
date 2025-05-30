@@ -9,28 +9,28 @@ class HabitRepository {
 
   Future<int> insertHabit(HabitModel habit) async {
     final habitEntity = Habit(
-      habitId: habit.habitId,
-      name: habit.name,
-      description: habit.description ?? "",
-      frequency: habit.frequency,
-      completed: habit.completed,
-      startDate: habit.startDate,
-      endDate: habit.endDate,
-      userId: habit.userId,
+      null,
+      habit.name,
+      habit.description ?? "",
+      habit.frequency,
+      habit.completed,
+      habit.startDate,
+      habit.endDate,
+      habit.userId,
     );
     return await habitDao.insertHabit(habitEntity);
   }
 
   Future<void> updateHabit(HabitModel habit) async {
     final habitEntity = Habit(
-      habitId: habit.habitId,
-      name: habit.name,
-      description: habit.description ?? "",
-      frequency: habit.frequency,
-      completed: habit.completed,
-      startDate: habit.startDate,
-      endDate: habit.endDate,
-      userId: habit.userId,
+      habit.habitId,
+      habit.name,
+      habit.description ?? "",
+      habit.frequency,
+      habit.completed,
+      habit.startDate,
+      habit.endDate,
+      habit.userId,
     );
     await habitDao.updateHabit(habitEntity);
   }
@@ -50,16 +50,10 @@ class HabitRepository {
   }
 
   Future<void> deleteHabit(HabitModel habit) async {
-    final habitEntity = Habit(
-      habitId: habit.habitId,
-      name: habit.name,
-      description: habit.description ?? "",
-      frequency: habit.frequency,
-      completed: habit.completed,
-      startDate: habit.startDate,
-      endDate: habit.endDate,
-      userId: habit.userId,
-    );
-    await habitDao.deleteHabit(habitEntity);
+    if (habit.habitId != null) {
+      await habitDao.deleteHabitById(habit.habitId!);
+    } else {
+      throw Exception("El hábito no tiene un ID válido para eliminarse.");
+    }
   }
 }
