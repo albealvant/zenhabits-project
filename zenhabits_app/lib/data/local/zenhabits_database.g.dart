@@ -171,20 +171,19 @@ class _$UserDao extends UserDao {
   final DeletionAdapter<User> _userDeletionAdapter;
 
   @override
-  Future<User?> findUserById(int id) async {
-    return _queryAdapter.query(
-        'SELECT username FROM usuarios WHERE idUsuario = ?1',
+  Future<User?> findUserByName(String name) async {
+    return _queryAdapter.query('SELECT * FROM users WHERE name = ?1',
         mapper: (Map<String, Object?> row) => User(
             row['userId'] as int?,
             row['name'] as String,
             row['email'] as String,
             row['passwordHash'] as String),
-        arguments: [id]);
+        arguments: [name]);
   }
 
   @override
   Future<List<User>> findAllUsers() async {
-    return _queryAdapter.queryList('SELECT username FROM usuarios',
+    return _queryAdapter.queryList('SELECT name FROM users',
         mapper: (Map<String, Object?> row) => User(
             row['userId'] as int?,
             row['name'] as String,

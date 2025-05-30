@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:zenhabits_app/domain/model/habit.dart';
 import 'package:zenhabits_app/presentation/viewmodels/habit_view_model.dart';
+import 'package:zenhabits_app/presentation/viewmodels/user_view_model.dart'; // Importar UserViewModel
 
 class CreateHabitScreen extends StatefulWidget {
   const CreateHabitScreen({super.key});
@@ -23,7 +24,18 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
   }
 
   void _createHabit(BuildContext context) async {
-    final viewModel = Provider.of<HabitViewModel>(context, listen: false);
+    final habitViewModel = Provider.of<HabitViewModel>(context, listen: false);
+    final userViewModel = Provider.of<UserViewModel>(context, listen: false);
+
+    final user = userViewModel.currentUser.value;
+    final userId = user?.userId ?? 0;
+
+    if (userId == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No hay usuario autenticado')),
+      );
+      return;
+    }
 
     final name = nameController.text.trim();
     final description = descriptionController.text.trim();
@@ -43,12 +55,12 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
       completed: false,
       startDate: DateTime.now(),
       endDate: DateTime.now().add(const Duration(days: 30)),
-      userId: 0, // Cambia esto según el usuario actual
+      userId: userId,
     );
 
     try {
-      await viewModel.createHabit(newHabit);
-      await viewModel.getHabits(0); // Refrescar la lista de hábitos
+      await habitViewModel.createHabit(newHabit);
+      await habitViewModel.getHabits(userId);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -114,21 +126,7 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0, top: 16.0),
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: CircleAvatar(
-                  backgroundColor: const Color(0xFFaa5c21),
-                  radius: 22,
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
-                    iconSize: 20,
-                  ),
-                ),
-              ),
-            ),
+            // 🔴 Botón de volver eliminado
 
             Image.asset(
               'assets/img/monkey.png',

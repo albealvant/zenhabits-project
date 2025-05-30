@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:zenhabits_app/domain/model/habit.dart';
 import 'package:zenhabits_app/presentation/viewmodels/habit_view_model.dart';
+import 'package:zenhabits_app/presentation/viewmodels/user_view_model.dart'; // <-- AÑADIDO
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,8 +17,16 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    final habitViewModel = Provider.of<HabitViewModel>(context, listen: false);
-    habitViewModel.getHabits(0); // Carga hábitos para usuario 0 inicialmente
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userViewModel = Provider.of<UserViewModel>(context, listen: false);
+      final habitViewModel = Provider.of<HabitViewModel>(context, listen: false);
+      final user = userViewModel.currentUser.value;
+
+      if (user != null) {
+        habitViewModel.getHabits(user.userId ?? 0);
+      }
+    });
   }
 
   void _onItemTapped(int index) {
@@ -35,6 +44,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final habitViewModel = Provider.of<HabitViewModel>(context);
+    final userViewModel = Provider.of<UserViewModel>(context);
+    final user = userViewModel.currentUser.value;
 
     return Scaffold(
       backgroundColor: const Color(0xFFffead2),
@@ -42,7 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header usuario
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
               child: Row(
@@ -62,9 +72,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Username',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.brown),
+                      Text(
+                        user?.name ?? 'Usuario', // <-- NOMBRE DINÁMICO DEL USUARIO
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.brown),
                       ),
                       const SizedBox(height: 8),
                       Row(

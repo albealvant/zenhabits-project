@@ -10,10 +10,10 @@ abstract class UserDao {
   @update
   Future<void> updateUsuario(User user);
 
-  @Query('SELECT username FROM usuarios WHERE idUsuario = :id')
-  Future<User?> findUserById(int id);
+  @Query('SELECT * FROM users WHERE name = :name')
+  Future<User?> findUserByName(String name);
 
-  @Query('SELECT username FROM usuarios')
+  @Query('SELECT name FROM users')
   Future<List<User>> findAllUsers();
 
   @delete

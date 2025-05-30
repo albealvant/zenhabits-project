@@ -9,7 +9,7 @@ class UserRepository {
 
   Future<void> insertUser(UserModel user) async {
     final userEntity = User(
-      user.userId ?? 0,
+      null,
       user.name,
       user.email,
       user.passwordHash,
@@ -27,21 +27,18 @@ class UserRepository {
     await userDao.updateUsuario(userEntity);
   }
 
-  Future<UserModel?> getUserById(UserModel user) async {
-    if (user.userId != null) {
-      final userEntity = await userDao.findUserById(user.userId!);
-      if (userEntity != null) {
-        return UserModel(
-          userId: userEntity.userId,
-          name: userEntity.name,
-          email: userEntity.email,
-          passwordHash: userEntity.passwordHash,
-        );
-      } else {
-        return null;
-      }
+  Future<UserModel?> getUserByName(String name) async {
+    final userEntity = await userDao.findUserByName(name);
+    
+    if (userEntity != null) {
+      return UserModel(
+        userId: userEntity.userId,
+        name: userEntity.name,
+        email: userEntity.email,
+        passwordHash: userEntity.passwordHash,
+      );
     } else {
-      throw Exception("El usuario no tiene un ID válido para buscarse.");
+      return null;
     }
   }
 

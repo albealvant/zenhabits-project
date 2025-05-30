@@ -7,27 +7,22 @@ class GetUserUsecase {
 
   GetUserUsecase ({required this.repository});
 
-  UserModel _toUserModel(User user) {
-    return UserModel(
-      name: user.name,
-      email: user.email,
-      passwordHash: user.password
-    );
-  }
-
   User _toUser(UserModel user) {
     return User(
+      userId: user.userId,
       name: user.name,
       email: user.email,
       password: user.passwordHash
     );
   }
 
-  Future<User> call(User user) async {
+Future<User> call(String name) async {
     try {
-      final userModel = _toUserModel(user);
-      final result = await repository.getUserById(userModel);
-      final finalUser = _toUser(result!);
+      final result = await repository.getUserByName(name);
+      if (result == null) {
+        throw Exception('Usuario no encontrado');
+      }
+      final finalUser = _toUser(result);
       return finalUser;
     } catch (e) {
       throw Exception('Error al encontrar al usuario: ${e.toString()}');

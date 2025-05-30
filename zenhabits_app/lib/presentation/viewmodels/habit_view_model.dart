@@ -25,23 +25,23 @@ class HabitViewModel extends ChangeNotifier {
     habitos.value = fetchedHabits;
   }
 
-  Future<void> createHabit(Habit habit) async {
+Future<void> createHabit(Habit habit) async {
+  try {
+    final id = await insertHabitUsecase(habit);
+    habit.habitId = id;
+    await getHabits(habit.userId);
+  } catch (e) {
+    throw Exception('Error al crear hábito: $e');
+  }
+}
+
+  Future<void> updateHabit(Habit habit) async {
     try {
-      final id = await insertHabitUsecase(habit);
-      habit.habitId = id;
-      habitos.value = [...habitos.value, habit];
+      await updateHabitUseCase(habit);
     } catch (e) {
-      throw Exception ('Error al crear hábito: $e');
+      throw Exception ('Error al eliminar hábito: $e');
     }
   }
-
-    Future<void> updateHabit(Habit habit) async {
-      try {
-        await updateHabitUseCase(habit);
-      } catch (e) {
-        throw Exception ('Error al eliminar hábito: $e');
-      }
-    }
 
   Future<void> deleteHabit(Habit habit) async {
     try {
