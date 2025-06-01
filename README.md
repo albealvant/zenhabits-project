@@ -64,10 +64,70 @@ Por su parte, la app móvil establece la conexión con la API mediante HTTPS (pu
 
 <br>
 
-## Diagrama de componentes
+## Diagrama de componentes (ongoing)
 ```plantuml
+@startuml
+skinparam componentStyle uml2
+top to bottom direction
 
+interface "Zenhabits" as IHabitService
+
+note right of IHabitService
+  + insertHabit(habit)
+  + deleteHabit(habit)
+  + getHabits(userId)
+  + insertUser(user)
+  + getUser(user)
+end note
+
+package "presentation" {
+  [ViewModels] --> IHabitService
+  [screens]
+}
+
+package "domain" {
+  [models]
+  [UseCases] ..|> IHabitService
+}
+
+package "data" {
+  [Repositories]
+  [Database]
+}
+
+[UseCases] --> data
+[Repositories] --> [Database]
+[ViewModels] --> domain
+@enduml
 ```
+```plantuml
+@startuml
+top to bottom direction
+
+package app(Cliente) {
+  [GUI]
+  [Auth logic]
+  [Habits logic]
+  [Server sync]
+  [Local db]
+}
+
+package server {
+  [Rust API]
+  [MySQL]
+}
+
+[GUI] --> [Auth logic]: login
+[GUI] --> [Habits logic]: manage habits
+[GUI] --> [Server sync]: sync data
+[Habits logic] --> [Local db]: read/write
+[Auth logic] --> [Local db]: read
+
+[Rust API] --> [MySQL]: read/write
+[Server sync] --> [Rust API]: upload/download
+@enduml
+```
+
 <br>
 
 ## Diagrama de clases (ongoing)
@@ -78,7 +138,7 @@ top to bottom direction
 package "data" {
   package "database"{
     package converter {
-      class DatetimeConverter
+      class DatetimeConverter extends TypeConverter
     }
     package dao {
       abstract class HabitDao
@@ -86,17 +146,18 @@ package "data" {
     }
     package entities {
       class HabitEntity {
-        + habitId: int
+        + habitId: int "Autogenerate-Primary Key"
         + name: String
         + description: String
+        + frequency: String
         + completed: bool
         + startDate: DateTime
         + endDate: DateTime
-        + userId: int
+        + userId: int "foreign key"
       }
 
       class UserEntity {
-        + userId: int
+        + userId: int "Autogenerate-Primary Key"
         + name: String
         + email: String
         + passwordHash: String
@@ -104,13 +165,28 @@ package "data" {
     }
   }
   package model {
-    class HabitModel
-    class UserModel
+    class HabitModel {
+      + habitId: int
+      + name: String
+      + description: String?
+      + frequency: String
+      + completed: bool
+      + startDate: DateTime
+      + endDate: DateTime
+      + userId: int
+    }
+    class UserModel {
+      + userId: int
+      + name: String
+      + email: String
+      + passwordHash: String
+    }
   }
   package repository {
     class HabitsRepository {
       + getHabits(): List<HabitModel>
       + insertHabit(HabitModel habit)
+      + updateHabit(HabitModel habit)
       + deleteHabit(HabitModel habit)
       + getHabitsByUser(int userId): List<HabitModel>
     }
@@ -120,6 +196,8 @@ package "data" {
       + getUserById()
     }
   }
+
+  abstract class ZenhabitsDatabase extends FloorDatabase 
 
   HabitDao --> HabitEntity
   UserDao --> UserEntity
@@ -132,6 +210,11 @@ package "data" {
   UsersRepository --> UserDao
   UsersRepository --> UserModel
 }
+@enduml
+```
+```plantuml
+@startuml
+top to bottom direction
 
 package "domain" {
   package model {
@@ -153,12 +236,14 @@ package "domain" {
   }
   package usecases {
     class GetHabitsUseCase
+    class GetUserUseCase
     class InsertHabitUseCase
     class DeleteHabitUseCase
     class InsertUserUseCase
   }
 
   GetHabitsUseCase --> Habit
+  GetUserUseCase --> User
   InsertHabitUseCase --> Habit
   DeleteHabitUseCase --> Habit
   InsertUserUseCase --> User
@@ -178,6 +263,8 @@ package "presentation" {
     class UserViewModel
   }
 
+  UserViewModel --> GetUserUseCase
+  UserViewModel --> InsertUserUseCase
   HabitViewModel --> GetHabitsUseCase
   HabitViewModel --> InsertHabitUseCase
   HabitViewModel --> DeleteHabitUseCase
