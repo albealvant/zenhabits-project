@@ -1,6 +1,6 @@
-import 'package:zenhabits_app/data/local/database/dao/user_dao.dart';
-import 'package:zenhabits_app/data/local/database/entities/user_entity.dart';
-import 'package:zenhabits_app/data/local/model/user_model.dart';
+import 'package:zenhabits_app/data/database/dao/user_dao.dart';
+import 'package:zenhabits_app/data/database/entities/user_entity.dart';
+import 'package:zenhabits_app/data/model/user_model.dart';
 
 class UserRepository {
   final UserDao userDao;

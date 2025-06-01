@@ -1,5 +1,5 @@
-import 'package:zenhabits_app/data/local/model/habit_model.dart';
-import 'package:zenhabits_app/data/local/repositories/habits_repository.dart';
+import 'package:zenhabits_app/data/model/habit_model.dart';
+import 'package:zenhabits_app/data/repositories/habits_repository.dart';
 import 'package:zenhabits_app/domain/model/habit.dart';
 
 class DeleteHabitUsecase {

@@ -1,11 +1,26 @@
-import 'package:zenhabits_app/data/local/database/dao/habit_dao.dart';
-import 'package:zenhabits_app/data/local/database/entities/habit_entity.dart';
-import 'package:zenhabits_app/data/local/model/habit_model.dart';
+import 'package:zenhabits_app/data/database/dao/habit_dao.dart';
+import 'package:zenhabits_app/data/database/entities/habit_entity.dart';
+import 'package:zenhabits_app/data/model/habit_model.dart';
+import 'package:zenhabits_app/data/model/user_model.dart';
+import 'package:zenhabits_app/data/api/remote_habit_datasource.dart';
 
 class HabitRepository {
   final HabitDao habitDao;
+  final RemoteHabitsDataSource remoteDataSource;
 
-  HabitRepository({required this.habitDao});
+  HabitRepository({
+    required this.habitDao,
+    required this.remoteDataSource
+  });
+
+  Future<void> syncHabitsFromRemote(UserModel user) async {
+    final habits = await remoteDataSource.fetchUserHabits(user);
+    await upsertHabits(habits);
+  }
+
+  Future<void> upsertRemoteHabits(List<HabitModel> habits) async {
+    await remoteDataSource.upsertUserHabits(habits);
+  }
 
   Future<int> insertHabit(HabitModel habit) async {
     final habitEntity = Habit(
@@ -54,6 +69,16 @@ class HabitRepository {
       await habitDao.deleteHabitById(habit.habitId!);
     } else {
       throw Exception("El hábito no tiene un ID válido para eliminarse.");
+    }
+  }
+
+  Future<void> upsertHabits(List<HabitModel> habits) async {
+    for (final habit in habits) {
+      if (habit.habitId != null) {
+        await updateHabit(habit);
+      } else {
+        await insertHabit(habit);
+      }
     }
   }
 }

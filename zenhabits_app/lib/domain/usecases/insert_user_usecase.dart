@@ -1,5 +1,5 @@
-import 'package:zenhabits_app/data/local/model/user_model.dart';
-import 'package:zenhabits_app/data/local/repositories/users_repository.dart';
+import 'package:zenhabits_app/data/model/user_model.dart';
+import 'package:zenhabits_app/data/repositories/users_repository.dart';
 import 'package:zenhabits_app/domain/model/user.dart';
 
 class InsertUserUseCase {

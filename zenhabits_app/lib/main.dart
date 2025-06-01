@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:zenhabits_app/data/local/zenhabits_database.dart';
-import 'package:zenhabits_app/data/local/repositories/habits_repository.dart';
+import 'package:zenhabits_app/data/database/zenhabits_database.dart';
+import 'package:zenhabits_app/data/repositories/habits_repository.dart';
+import 'package:zenhabits_app/data/api/remote_habit_datasource.dart';
 import 'package:zenhabits_app/domain/usecases/insert_habit_usecase.dart';
 import 'package:zenhabits_app/domain/usecases/delete_habit_usecase.dart';
 import 'package:zenhabits_app/domain/usecases/get_habits_usecase.dart';
@@ -11,7 +12,7 @@ import 'package:zenhabits_app/presentation/screens/home_screen.dart';
 import 'package:zenhabits_app/presentation/screens/login_screen.dart';
 import 'package:zenhabits_app/presentation/viewmodels/habit_view_model.dart';
 import 'package:zenhabits_app/presentation/screens/signup_screen.dart';
-import 'package:zenhabits_app/data/local/repositories/users_repository.dart';
+import 'package:zenhabits_app/data/repositories/users_repository.dart';
 import 'package:zenhabits_app/domain/usecases/insert_user_usecase.dart';
 import 'package:zenhabits_app/domain/usecases/get_user_usecase.dart';
 import 'package:zenhabits_app/presentation/viewmodels/user_view_model.dart';
@@ -23,8 +24,9 @@ void main() async {
   final database = await $FloorZenhabitsDatabase
       .databaseBuilder('ZenHabits.db')
       .build();
+  final remoteDataSource = RemoteHabitsDataSource(baseUrl: 'http://localhost:3000');
 
-  final habitRepository = HabitRepository(habitDao: database.habitDao);
+  final habitRepository = HabitRepository(habitDao: database.habitDao,remoteDataSource: remoteDataSource);
   final userRepository = UserRepository(userDao: database.userDao);
   final insertHabitUseCase = InsertHabitUseCase(repository: habitRepository);
   final updateHabitUseCase = UpdateHabitUseCase(repository: habitRepository);

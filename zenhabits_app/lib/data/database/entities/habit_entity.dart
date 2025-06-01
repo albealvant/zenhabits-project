@@ -1,5 +1,5 @@
 import 'package:floor/floor.dart';
-import 'package:zenhabits_app/data/local/database/entities/user_entity.dart';
+import 'package:zenhabits_app/data/database/entities/user_entity.dart';
 
 @Entity(
   tableName: 'habits',
