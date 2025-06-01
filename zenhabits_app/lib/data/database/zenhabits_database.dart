@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
-import 'package:zenhabits_app/data/local/converters/datetime_converter.dart';
-import '../local/database/dao/user_dao.dart';
-import '../local/database/dao/habit_dao.dart';
-import '../local/database/entities/user_entity.dart';
-import '../local/database/entities/habit_entity.dart';
+import 'package:zenhabits_app/data/converters/datetime_converter.dart';
+import 'dao/user_dao.dart';
+import 'dao/habit_dao.dart';
+import 'entities/user_entity.dart';
+import 'entities/habit_entity.dart';
 
 part 'zenhabits_database.g.dart';
 

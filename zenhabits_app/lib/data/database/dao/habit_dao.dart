@@ -1,5 +1,5 @@
 import 'package:floor/floor.dart';
-import 'package:zenhabits_app/data/local/database/entities/habit_entity.dart';
+import 'package:zenhabits_app/data/database/entities/habit_entity.dart';
 
 @dao
 abstract class HabitDao {

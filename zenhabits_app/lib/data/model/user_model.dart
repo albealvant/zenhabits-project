@@ -10,4 +10,11 @@ class UserModel {
     required this.email,
     required this.passwordHash,
   });
+
+  Map<String, dynamic> toJson() => {
+    "userId": userId,
+    "name": name,
+    "email": email,
+    "password": passwordHash,
+  };
 }

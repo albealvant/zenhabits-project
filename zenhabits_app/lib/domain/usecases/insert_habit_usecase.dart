@@ -1,5 +1,5 @@
-import 'package:zenhabits_app/data/local/model/habit_model.dart';
-import 'package:zenhabits_app/data/local/repositories/habits_repository.dart';
+import 'package:zenhabits_app/data/model/habit_model.dart';
+import 'package:zenhabits_app/data/repositories/habits_repository.dart';
 import 'package:zenhabits_app/domain/model/habit.dart';
 
 class InsertHabitUseCase {
@@ -23,7 +23,10 @@ class InsertHabitUseCase {
   Future<int> call(Habit habit) async {
     try {
       final habitModel = _toHabitModel(habit);
-      return await repository.insertHabit(habitModel);
+      final result = await repository.insertHabit(habitModel);
+      final habitsList = await repository.getHabitsByUser(habit.userId);
+      await repository.upsertRemoteHabits(habitsList);
+      return result;
     } catch (e) {
       throw Exception('Error al insertar el hábito: ${e.toString()}');
     }
