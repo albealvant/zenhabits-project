@@ -46,7 +46,7 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
         const SnackBar(content: Text('Nombre y frecuencia son obligatorios')),
       );
       return;
-    }
+    };
 
     final newHabit = Habit(
       name: name,
@@ -64,7 +64,7 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Hábito creado con éxito 🎉'),
+          content: Text('Hábito creado con éxito'),
           backgroundColor: Colors.green,
           duration: Duration(seconds: 2),
         ),
@@ -126,8 +126,6 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // 🔴 Botón de volver eliminado
-
             Image.asset(
               'assets/img/monkey.png',
               width: 160,

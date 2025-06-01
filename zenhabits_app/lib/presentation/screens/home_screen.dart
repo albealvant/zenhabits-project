@@ -13,6 +13,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  int coins = 200;
 
   @override
   void initState() {
@@ -73,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        user?.name ?? 'Usuario', // <-- NOMBRE DINÁMICO DEL USUARIO
+                        user?.name ?? 'Usuario',
                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.brown),
                       ),
                       const SizedBox(height: 8),
@@ -86,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Container(width: 50, height: 5, color: Colors.blue),
                           const SizedBox(width: 8),
                           const Icon(Icons.monetization_on, size: 16, color: Colors.orange),
-                          const Text('253'),
+                          Text('$coins'),
                         ],
                       )
                     ],
@@ -135,6 +136,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 );
                                 await habitViewModel.updateHabit(updatedHabit);
                                 await habitViewModel.getHabits(habit.userId);
+
+                                setState(() {
+                                  if (value == true) {
+                                    coins += 10;
+                                  } else {
+                                    coins -= 10;
+                                  }
+                                });
                               },
                             ),
                             title: Opacity(

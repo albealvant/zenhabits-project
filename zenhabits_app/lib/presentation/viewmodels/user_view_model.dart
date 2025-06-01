@@ -45,7 +45,12 @@ class UserViewModel extends ChangeNotifier {
 
       await insertUserUseCase(userWithHash);
     } catch (e) {
-      error.value = 'Error al crear el usuario: ${e.toString()}';
+      final errorMessage = e.toString().toLowerCase();
+      if (errorMessage.contains('unique') || errorMessage.contains('duplicate')) {
+        error.value = 'El nombre de usuario ya está en uso.';
+      } else {
+        error.value = 'Error al crear el usuario: ${e.toString()}';
+      }
     } finally {
       isLoading.value = false;
     }
