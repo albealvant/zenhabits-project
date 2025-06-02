@@ -8,13 +8,14 @@
 ## Diagrama de despliegue
 ```plantuml
 @startuml
-node "Dispositivo del usuario" {
+left to right direction
+node "<<Device>>" {
   component "ZENHABITS App" {
     database "SQLite local"
   }
 }
 
-node "Servidor Cloud" {
+node "<<Servidor>>" {
   component "API Rust" as api {
     [sqlx crate]
   }
