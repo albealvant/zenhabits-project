@@ -1,3 +1,4 @@
+import 'package:zenhabits_app/core/utils/logger.dart';
 import 'package:zenhabits_app/data/model/habit_model.dart';
 import 'package:zenhabits_app/data/repositories/habits_repository.dart';
 import 'package:zenhabits_app/domain/model/habit.dart';
@@ -24,7 +25,9 @@ class DeleteHabitUsecase {
     try {
       final habitModel = _toHabitModel(habit);
       await repository.deleteHabit(habitModel);
+      logger.i("Habit successfully deleted");
     } catch (e) {
+      logger.e("Error in deleting the habit");
       throw Exception('Error al eliminar el hábito: ${e.toString()}');
     }
   }

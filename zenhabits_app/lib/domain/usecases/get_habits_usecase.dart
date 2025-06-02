@@ -1,3 +1,4 @@
+import 'package:zenhabits_app/core/utils/logger.dart';
 import 'package:zenhabits_app/data/repositories/habits_repository.dart';
 import 'package:zenhabits_app/domain/model/habit.dart';
 
@@ -20,6 +21,7 @@ class GetHabitsUseCase {
         userId: h.userId,
       )).toList();
     } catch (e) {
+      logger.e("Error getting user habits");
       throw Exception('Error al obtener los hábitos: ${e.toString()}');
     }
   }

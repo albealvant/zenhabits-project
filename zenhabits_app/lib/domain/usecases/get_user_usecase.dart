@@ -1,3 +1,4 @@
+import 'package:zenhabits_app/core/utils/logger.dart';
 import 'package:zenhabits_app/data/model/user_model.dart';
 import 'package:zenhabits_app/data/repositories/users_repository.dart';
 import 'package:zenhabits_app/domain/model/user.dart';
@@ -25,6 +26,7 @@ Future<User> call(String name) async {
       final finalUser = _toUser(result);
       return finalUser;
     } catch (e) {
+      logger.e("Error getting user");
       throw Exception('Error al encontrar al usuario: ${e.toString()}');
     }
   }
