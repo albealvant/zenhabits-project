@@ -1,0 +1,34 @@
+version: '3.8'
+
+services: 
+  remote_service:
+    build: 
+      context: ../
+      dockerfile: ./docker/Dockerfile
+    container_name: api_rust_container
+    ports:
+      - 3000:3000
+    environment: 
+      - DATABASE_URL=mysql://albamysql:user@mysql:3306/zenhabits_db?ssl-mode=DISABLED
+    depends_on: 
+      - mysql
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_container
+    environment: 
+      MYSQL_ROOT_PASSWORD: manager
+      MYSQL_DATABASE: zenhabits_db
+      MYSQL_USER: albamysql
+      MYSQL_PASSWORD: user
+    ports:
+      - "3326:3306"
+    volumes: 
+      - ../sql:/docker-entrypoint-initdb.d
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+
+volumes: 
+  mysql_data:
+

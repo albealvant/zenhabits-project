@@ -1,0 +1,15 @@
+[package]
+name = "zenhabits_server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = {version ="0.7", features = ["macros"]}
+reqwest = "0.12.15"
+tokio = { version = "1.42.0", features = ["full"] }
+serde_json = "1.0.140"
+serde = { version = "1.0.219", features = ["derive"]}
+sqlx = { version = "0.8", features = ["mysql", "runtime-tokio"] }
+dotenv = "0.15.0"
+sha256 = "1.6.0"
+base64 = "0.22.1"
