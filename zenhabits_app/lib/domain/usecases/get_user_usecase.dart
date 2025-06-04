@@ -40,7 +40,6 @@ class GetUserUsecase {
 
       final finalUser = _toUser(result);
 
-      // ✅ Sincronizar hábitos una vez obtenido el usuario
       await habitRepository.syncHabitsFromRemote(_toUserModel(finalUser));
       logger.i("Remote habits synced after fetching user ${finalUser.name}");
 

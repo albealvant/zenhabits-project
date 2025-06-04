@@ -13,7 +13,6 @@ class RemoteHabitsDataSource {
     final endpoint = Uri.parse("$baseUrl/load");
     logger.i("Fetching habits for user: ${user.name} from $endpoint");
 
-    print("🔍 Payload del usuario: ${user.toJson()}");
     final response = await http.post(
       endpoint,
       headers: {"Content-Type": "application/json"},
@@ -62,7 +61,6 @@ class RemoteHabitsDataSource {
       logger.d("Response status: ${response.statusCode}");
       if (response.statusCode != 200) {
         logger.e("Failed to upsert habits. Status code: ${response.statusCode}");
-        print("🛑 Response body: ${response.body}");
         throw Exception("Error al actualizar los hábitos del servidor: ${response.statusCode}");
       }
 
