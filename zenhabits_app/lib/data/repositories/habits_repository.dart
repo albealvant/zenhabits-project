@@ -24,9 +24,9 @@ class HabitRepository {
     }
   }
 
-  Future<void> upsertRemoteHabits(List<HabitModel> habits) async {
+  Future<void> upsertRemoteHabits(List<HabitModel> habits, UserModel user) async {
     try {
-      await remoteDataSource.upsertUserHabits(habits);
+      await remoteDataSource.upsertUserHabits(habits, user);
       logger.i("Successfully upserted ${habits.length} remote habits");
     } catch (e) {
       logger.e("Failed to upsert remote habits: $e");

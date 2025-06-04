@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zenhabits_app/core/utils/logger.dart';
 import 'package:zenhabits_app/domain/model/habit.dart';
+import 'package:zenhabits_app/domain/model/user.dart';
 import 'package:zenhabits_app/domain/usecases/insert_habit_usecase.dart';
 import 'package:zenhabits_app/domain/usecases/delete_habit_usecase.dart';
 import 'package:zenhabits_app/domain/usecases/get_habits_usecase.dart';
@@ -32,9 +33,9 @@ class HabitViewModel extends ChangeNotifier {
     }   
   }
 
-  Future<void> createHabit(Habit habit) async {
+  Future<void> createHabit(Habit habit, User currentUser) async {
     try {
-      final id = await insertHabitUsecase(habit);
+      final id = await insertHabitUsecase(habit, currentUser);
       habit.habitId = id;
       logger.i("Habit created with ID: $id");
       await getHabits(habit.userId);
@@ -44,10 +45,10 @@ class HabitViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> updateHabit(Habit habit) async {
+  Future<void> updateHabit(Habit habit, User currentUser) async {
     try {
       logger.i("Habit updated: ${habit.habitId}");
-      await updateHabitUseCase(habit);
+      await updateHabitUseCase(habit, currentUser);
     } catch (e) {
       logger.e("Error updating habit: $e");
       throw Exception ('No se pudo actualizar el hábito: $e');

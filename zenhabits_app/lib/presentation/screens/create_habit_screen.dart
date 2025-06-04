@@ -59,7 +59,7 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
     );
 
     try {
-      await habitViewModel.createHabit(newHabit);
+      await habitViewModel.createHabit(newHabit, user!);
       await habitViewModel.getHabits(userId);
 
       ScaffoldMessenger.of(context).showSnackBar(

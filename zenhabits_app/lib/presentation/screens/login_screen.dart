@@ -97,7 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide.none,
                                 ),
-                                hintText: 'correo/nombre de usuario',
+                                hintText: 'nombre de usuario',
                               ),
                             ),
                             const SizedBox(height: 16),

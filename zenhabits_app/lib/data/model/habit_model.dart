@@ -20,23 +20,24 @@ class HabitModel {
   });
 
   factory HabitModel.fromJson(Map<String, dynamic> data) => HabitModel(
-    habitId: data["habitId"], 
+    habitId: data["habit_id"], 
     name: data["name"], 
+    description: data["description"],
     frequency: data["frequency"], 
     completed: data["completed"], 
-    startDate: DateTime.fromMillisecondsSinceEpoch(data["startDate"]), 
-    endDate: DateTime.fromMillisecondsSinceEpoch(data["endDate"]), 
-    userId: data["userId"]
+    startDate: DateTime.fromMillisecondsSinceEpoch(data["start_date"]), 
+    endDate: DateTime.fromMillisecondsSinceEpoch(data["end_date"]), 
+    userId: data["user_id"]
   );
 
   Map<String, dynamic> toJson() => {
-    "habitId": habitId,
+    "habit_id": habitId,
     "name": name,
-    "description": description,
+    "description": description ?? "",
     "frequency": frequency,
     "completed": completed,
-    "startDate": startDate.millisecondsSinceEpoch,
-    "endDate": endDate.millisecondsSinceEpoch,
-    "userId": userId,
+    "start_date": startDate.millisecondsSinceEpoch,
+    "end_date": endDate.millisecondsSinceEpoch,
+    "user_id": userId,
   };
 }

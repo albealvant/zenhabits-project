@@ -134,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   endDate: habit.endDate,
                                   userId: habit.userId,
                                 );
-                                await habitViewModel.updateHabit(updatedHabit);
+                                await habitViewModel.updateHabit(updatedHabit, user!);
                                 await habitViewModel.getHabits(habit.userId);
 
                                 setState(() {

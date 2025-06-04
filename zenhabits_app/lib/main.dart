@@ -33,7 +33,7 @@ void main() async {
   final deleteHabitUseCase = DeleteHabitUsecase(repository: habitRepository);
   final getHabitsUseCase = GetHabitsUseCase(repository: habitRepository);
   final insertUserUseCase = InsertUserUseCase(repository: userRepository);
-  final getUserUseCase = GetUserUsecase(repository: userRepository);
+  final getUserUseCase = GetUserUsecase(repository: userRepository, habitRepository: habitRepository);
 
 
   runApp(

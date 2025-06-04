@@ -13,6 +13,7 @@ class RemoteHabitsDataSource {
     final endpoint = Uri.parse("$baseUrl/load");
     logger.i("Fetching habits for user: ${user.name} from $endpoint");
 
+    print("🔍 Payload del usuario: ${user.toJson()}");
     final response = await http.post(
       endpoint,
       headers: {"Content-Type": "application/json"},
@@ -39,18 +40,32 @@ class RemoteHabitsDataSource {
     }
   }
 
-  Future<void> upsertUserHabits(List<HabitModel> habitsList) async {
+  Future<void> upsertUserHabits(List<HabitModel> habitsList, UserModel user) async {
     final endpoint = Uri.parse("$baseUrl/save");
-    final body = jsonEncode(habitsList.map((h) => h.toJson()).toList());
-    logger.i("Upserting ${habitsList.length} habits to $endpoint");
+
+    final payload = {
+      "user": user.toJson(),
+      "habits": habitsList.map((h) => h.toJson()).toList(),
+    };
+
+    final body = jsonEncode(payload);
+    logger.i("Request body: $body");
+    logger.i("Upserting ${habitsList.length} habits to $endpoint with user ${user.userId}");
 
     try {
-      final response = await http.post(endpoint, headers: {"Content-Type":"application/json"}, body: body);
+      final response = await http.post(
+        endpoint,
+        headers: {"Content-Type": "application/json"},
+        body: body,
+      );
+
       logger.d("Response status: ${response.statusCode}");
       if (response.statusCode != 200) {
         logger.e("Failed to upsert habits. Status code: ${response.statusCode}");
+        print("🛑 Response body: ${response.body}");
         throw Exception("Error al actualizar los hábitos del servidor: ${response.statusCode}");
       }
+
       logger.i("Habits upserted successfully");
     } catch (e) {
       logger.e("Error upserting habits: $e", e);
