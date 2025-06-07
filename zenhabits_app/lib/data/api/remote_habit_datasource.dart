@@ -3,15 +3,17 @@ import 'package:http/http.dart' as http;
 import 'package:zenhabits_app/data/model/habit_model.dart';
 import 'package:zenhabits_app/data/model/user_model.dart';
 import 'package:zenhabits_app/core/utils/logger.dart';
+import 'package:zenhabits_app/core/constants/remote_errors.dart';
+import 'package:zenhabits_app/core/constants/remote_log_messages.dart';
 
 class RemoteHabitsDataSource {
   final String baseUrl;
 
-  RemoteHabitsDataSource({required this.baseUrl}); //http://localhost:3000
+  RemoteHabitsDataSource({required this.baseUrl});
 
   Future<List<HabitModel>> fetchUserHabits(UserModel user) async {
     final endpoint = Uri.parse("$baseUrl/load");
-    logger.i("Fetching habits for user: ${user.name} from $endpoint");
+    logger.i(RemoteLogMessages.fetchingHabits(user.name, endpoint.toString()));
 
     final response = await http.post(
       endpoint,
@@ -19,23 +21,23 @@ class RemoteHabitsDataSource {
       body: jsonEncode(user.toJson()),
     );
 
-    logger.d("Response status: ${response.statusCode}");
+    logger.d("${RemoteLogMessages.responseStatus} ${response.statusCode}");
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
 
       if (data["habits"] is! List) {
-        logger.e("Invalid format: 'habits' is not a list");
-        throw Exception("Formato inválido: 'habits' no es una lista");
+        logger.e(RemoteErrors.invalidHabitsFormat);
+        throw Exception(RemoteErrors.invalidHabitsFormat);
       }
 
-      logger.i("Successfully fetched ${data["habits"].length} habits");
+      logger.i(RemoteLogMessages.habitsFetched(data["habits"].length));
       return (data["habits"] as List)
           .map((h) => HabitModel.fromJson(h))
           .toList();
     } else {
-      logger.e("Failed to fetch habits. Status code: ${response.statusCode}");
-      throw Exception("Error al cargar hábitos: ${response.statusCode}");
+      logger.e(RemoteLogMessages.fetchFailed(response.statusCode));
+      throw Exception(RemoteErrors.fetchHabitsFailed(response.statusCode));
     }
   }
 
@@ -48,8 +50,8 @@ class RemoteHabitsDataSource {
     };
 
     final body = jsonEncode(payload);
-    logger.i("Request body: $body");
-    logger.i("Upserting ${habitsList.length} habits to $endpoint with user ${user.userId}");
+    logger.i(RemoteLogMessages.requestBody(body));
+    logger.i(RemoteLogMessages.upsertingHabits(habitsList.length, endpoint.toString(), user.userId));
 
     try {
       final response = await http.post(
@@ -58,15 +60,15 @@ class RemoteHabitsDataSource {
         body: body,
       );
 
-      logger.d("Response status: ${response.statusCode}");
+      logger.d("${RemoteLogMessages.responseStatus} ${response.statusCode}");
       if (response.statusCode != 200) {
-        logger.e("Failed to upsert habits. Status code: ${response.statusCode}");
-        throw Exception("Error al actualizar los hábitos del servidor: ${response.statusCode}");
+        logger.e(RemoteLogMessages.upsertFailed(response.statusCode));
+        throw Exception(RemoteErrors.upsertHabitsFailed(response.statusCode));
       }
 
-      logger.i("Habits upserted successfully");
+      logger.i(RemoteLogMessages.upsertSuccess);
     } catch (e) {
-      logger.e("Error upserting habits: $e", e);
+      logger.e(RemoteLogMessages.upsertError(e), e);
     }
   }
 }

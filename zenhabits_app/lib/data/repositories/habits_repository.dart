@@ -1,3 +1,6 @@
+import 'package:zenhabits_app/core/constants/local_errors.dart';
+import 'package:zenhabits_app/core/constants/local_messages.dart';
+import 'package:zenhabits_app/core/constants/remote_log_messages.dart';
 import 'package:zenhabits_app/core/utils/logger.dart';
 import 'package:zenhabits_app/data/database/dao/habit_dao.dart';
 import 'package:zenhabits_app/data/database/entities/habit_entity.dart';
@@ -17,19 +20,19 @@ class HabitRepository {
   Future<void> syncHabitsFromRemote(UserModel user) async {
     try {
       final habits = await remoteDataSource.fetchUserHabits(user);
-      logger.i("Remote habits fetched for user ${user.name}: ${habits.length} habits");
+      logger.i(RemoteLogMessages.remoteHabitsFetched(user.name, habits.length));
       await upsertHabits(habits);
     } catch (e) {
-      logger.e("Failed to sync remote habits: $e");
+      logger.e(RemoteLogMessages.syncRemoteFailed(e));
     }
   }
 
   Future<void> upsertRemoteHabits(List<HabitModel> habits, UserModel user) async {
     try {
       await remoteDataSource.upsertUserHabits(habits, user);
-      logger.i("Successfully upserted ${habits.length} remote habits");
+      logger.i(RemoteLogMessages.remoteUpsertSuccess(habits.length));
     } catch (e) {
-      logger.e("Failed to upsert remote habits: $e");
+      logger.e(RemoteLogMessages.upsertError(e));
     }
   }
 
@@ -46,10 +49,10 @@ class HabitRepository {
         habit.userId,
       );
       final id = await habitDao.insertHabit(habitEntity);
-      logger.i("Habit inserted: ${habit.name} with ID $id");
+      logger.i(LocalLogMessages.habitInserted(habit.name, id));
       return id;
     } catch (e) {
-      logger.e("Error inserting habit ${habit.name}: $e");
+      logger.e(LocalErrors.insertHabit(habit.name));
       rethrow;
     }
   }
@@ -67,16 +70,16 @@ class HabitRepository {
         habit.userId,
       );
       await habitDao.updateHabit(habitEntity);
-      logger.i("Habit updated: ${habit.name}");
+      logger.i(LocalLogMessages.habitUpdated(habit.name));
     } catch (e) {
-      logger.e("Error updating habit ${habit.name}: $e");
+      logger.e(LocalErrors.updateHabit(habit.name));
     }
   }
 
   Future<List<HabitModel>> getHabitsByUser(int userId) async {
     try {
       final habitEntities = await habitDao.findHabitsByUsuario(userId);
-      logger.i("Fetched ${habitEntities.length} habits for userId $userId");
+      logger.i(LocalLogMessages.fetchedHabits(userId, habitEntities.length));
       return habitEntities.map((habit) => HabitModel(
         habitId: habit.habitId,
         name: habit.name,
@@ -88,7 +91,7 @@ class HabitRepository {
         userId: habit.userId,
       )).toList();
     } catch (e) {
-      logger.e("Failed to fetch habits for userId $userId: $e");
+      logger.e(LocalErrors.fetchHabits(userId, e.toString()));
       rethrow;
     }
   }
@@ -97,12 +100,12 @@ class HabitRepository {
     try {
       if (habit.habitId != null) {
         await habitDao.deleteHabitById(habit.habitId!);
-        logger.i("Habit deleted with ID ${habit.habitId}");
+        logger.i(LocalLogMessages.habitDeleted(habit.habitId!));
       } else {
-        throw Exception("Habit does not have a valid ID for deletion.");
+        throw Exception(LocalLogMessages.deleteHabit);
       }
     } catch (e) {
-      logger.e("Error deleting habit ${habit.habitId}: $e");
+      logger.e(LocalErrors.deleteHabit(e.toString()));
     }
   }
 
@@ -115,7 +118,7 @@ class HabitRepository {
           await insertHabit(habit);
         }
       } catch (e) {
-        logger.w("Error during upsert of habit ${habit.name}: $e");
+        logger.w(LocalLogMessages.upsertError(habit.name, e));
       }
     }
   }

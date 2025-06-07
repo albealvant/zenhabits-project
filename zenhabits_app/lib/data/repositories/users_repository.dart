@@ -1,3 +1,5 @@
+import 'package:zenhabits_app/core/constants/local_errors.dart';
+import 'package:zenhabits_app/core/constants/local_messages.dart';
 import 'package:zenhabits_app/core/utils/logger.dart';
 import 'package:zenhabits_app/data/database/dao/user_dao.dart';
 import 'package:zenhabits_app/data/database/entities/user_entity.dart';
@@ -17,9 +19,9 @@ class UserRepository {
         user.passwordHash,
       );
       await userDao.insertUser(userEntity);
-      logger.i("User inserted: ${user.name}");
+      logger.i(LocalLogMessages.userInserted(user.name));
     } catch (e) {
-      logger.e("Error inserting user ${user.name}: $e");
+      logger.e(LocalErrors.insertUser(user.name, e.toString()));
     }
   }
 
@@ -32,9 +34,9 @@ class UserRepository {
         user.passwordHash,
       );
       await userDao.updateUsuario(userEntity);
-      logger.i("User updated: ${user.name}");
+      logger.i(LocalLogMessages.userUpdated(user.name));
     } catch (e) {
-      logger.e("Error updating user ${user.name}: $e");
+      logger.e(LocalErrors.updateUser);
     }
   }
 
@@ -42,7 +44,7 @@ class UserRepository {
     try {
       final userEntity = await userDao.findUserByName(name);
       if (userEntity != null) {
-        logger.i("User found: $name");
+        logger.i(LocalLogMessages.userFound(name));
         return UserModel(
           userId: userEntity.userId,
           name: userEntity.name,
@@ -50,27 +52,11 @@ class UserRepository {
           passwordHash: userEntity.passwordHash,
         );
       } else {
-        logger.w("User not found: $name");
+        logger.w(LocalLogMessages.userNotFound(name));
         return null;
       }
     } catch (e) {
-      logger.e("Error fetching user $name: $e");
-      rethrow;
-    }
-  }
-
-  Future<List<UserModel>> getAllUsers() async {
-    try {
-      final users = await userDao.findAllUsers();
-      logger.i("Fetched ${users.length} users");
-      return users.map((user) => UserModel(
-        userId: user.userId,
-        name: user.name,
-        email: user.email,
-        passwordHash: user.passwordHash,
-      )).toList();
-    } catch (e) {
-      logger.e("Error fetching all users: $e");
+      logger.e(LocalErrors.fetchUser);
       rethrow;
     }
   }
@@ -84,9 +70,9 @@ class UserRepository {
         user.passwordHash,
       );
       await userDao.deleteUser(userEntity);
-      logger.i("User deleted: ${user.name}");
+      logger.i(LocalLogMessages.userDeleted(user.name));
     } catch (e) {
-      logger.e("Error deleting user ${user.name}: $e");
+      logger.e(LocalErrors.deleteUser);
     }
   }
 }

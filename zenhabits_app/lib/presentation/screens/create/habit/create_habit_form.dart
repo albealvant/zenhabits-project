@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:zenhabits_app/domain/model/habit.dart';
+import 'package:zenhabits_app/presentation/screens/create/habit/create_habit_controller.dart';
 import 'package:zenhabits_app/presentation/viewmodels/habit_view_model.dart';
 import 'package:zenhabits_app/presentation/viewmodels/user_view_model.dart';
 
@@ -8,14 +8,14 @@ class CreateHabitForm extends StatefulWidget {
   const CreateHabitForm({super.key});
 
   @override
-  State<CreateHabitForm> createState() => _CreateHabitContentState();
+  State<CreateHabitForm> createState() => _CreateHabitFormState();
 }
 
-class _CreateHabitContentState extends State<CreateHabitForm> {
+class _CreateHabitFormState extends State<CreateHabitForm> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   String? selectedFrequency;
-  bool _isSubmitting = false;
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -24,113 +24,17 @@ class _CreateHabitContentState extends State<CreateHabitForm> {
     super.dispose();
   }
 
-  void _createHabit(BuildContext context) async {
-    if (_isSubmitting) return;
-
-    final habitViewModel = Provider.of<HabitViewModel>(context, listen: false);
-    final userViewModel = Provider.of<UserViewModel>(context, listen: false);
-
-    final user = userViewModel.currentUser.value;
-    final userId = user?.userId ?? 0;
-
-    if (userId == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No hay usuario autenticado')),
-      );
-      return;
-    }
-
-    final name = nameController.text.trim();
-    final description = descriptionController.text.trim();
-    final frequency = selectedFrequency;
-
-    if (name.isEmpty || frequency == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nombre y frecuencia son obligatorios')),
-      );
-      return;
-    }
-
-    setState(() => _isSubmitting = true);
-
-    final newHabit = Habit(
-      name: name,
-      description: description.isEmpty ? null : description,
-      frequency: frequency.toLowerCase(),
-      completed: false,
-      startDate: DateTime.now(),
-      endDate: DateTime.now().add(const Duration(days: 30)),
-      userId: userId,
-    );
-
-    try {
-      await habitViewModel.createHabit(newHabit, user!);
-      await habitViewModel.getHabits(userId);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Hábito creado con éxito'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
-        ),
-      );
-
-      await Future.delayed(const Duration(seconds: 2));
-      Navigator.pop(context);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al crear hábito: $e')),
-      );
-    } finally {
-      setState(() => _isSubmitting = false);
-    }
-  }
-
-  Widget _buildTextField({
-    required String hintText,
-    required TextEditingController controller,
-  }) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        hintText: hintText,
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildButton({
-    required String text,
-    required Color color,
-    required VoidCallback onPressed,
-  }) {
-    return ElevatedButton(
-      onPressed: _isSubmitting ? null : onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 17,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final habitViewModel = context.read<HabitViewModel>();
+    final userViewModel = context.read<UserViewModel>();
+
+    final controller = CreateHabitController(
+      habitViewModel: habitViewModel,
+      userViewModel: userViewModel,
+      context: context,
+    );
+
     return Column(
       children: [
         Image.asset(
@@ -164,15 +68,7 @@ class _CreateHabitContentState extends State<CreateHabitForm> {
                 _buildTextField(hintText: 'Descripción', controller: descriptionController),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
-                    hintText: 'Frecuencia',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
+                  decoration: _inputDecoration('Frecuencia'),
                   items: const [
                     DropdownMenuItem(value: 'diario', child: Text('Diario')),
                     DropdownMenuItem(value: 'semanal', child: Text('Semanal')),
@@ -192,12 +88,30 @@ class _CreateHabitContentState extends State<CreateHabitForm> {
                     _buildButton(
                       text: 'AÑADIR',
                       color: Colors.orange,
-                      onPressed: () => _createHabit(context),
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              if (selectedFrequency != null) {
+                                setState(() => isLoading = true);
+
+                                await controller.createHabit(
+                                  name: nameController.text,
+                                  description: descriptionController.text,
+                                  frequency: selectedFrequency!,
+                                );
+
+                                if (mounted) setState(() => isLoading = false);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Selecciona una frecuencia')),
+                                );
+                              }
+                            },
                     ),
                     _buildButton(
                       text: 'CANCELAR',
                       color: const Color(0xFFFFC66B),
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: isLoading ? null : () => Navigator.pop(context),
                     ),
                   ],
                 ),
@@ -206,6 +120,59 @@ class _CreateHabitContentState extends State<CreateHabitForm> {
           ),
         ),
       ],
+    );
+  }
+
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required String hintText,
+    required TextEditingController controller,
+  }) {
+    return TextField(
+      controller: controller,
+      decoration: _inputDecoration(hintText),
+    );
+  }
+
+  Widget _buildButton({
+    required String text,
+    required Color color,
+    required VoidCallback? onPressed,
+  }) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: isLoading && text == 'AÑADIR'
+          ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+            )
+          : Text(
+              text,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 17,
+              ),
+            ),
     );
   }
 }

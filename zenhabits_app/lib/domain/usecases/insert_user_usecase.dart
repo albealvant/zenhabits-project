@@ -1,3 +1,5 @@
+import 'package:zenhabits_app/core/constants/local_errors.dart';
+import 'package:zenhabits_app/core/constants/local_messages.dart';
 import 'package:zenhabits_app/core/utils/logger.dart';
 import 'package:zenhabits_app/data/model/user_model.dart';
 import 'package:zenhabits_app/data/repositories/users_repository.dart';
@@ -20,9 +22,9 @@ class InsertUserUseCase {
     try {
       final userModel = _toUserModel(user);
       await repository.insertUser(userModel);
-      logger.i("User created successfully");
+      logger.i(LocalLogMessages.userInserted(user.name));
     } catch (e) {
-      logger.e("Error creating user");
+      logger.e(LocalErrors.insertUser(user.name, e.toString()));
       throw Exception('Error al crear la cuenta de usuario: ${e.toString()}');
     }
   }

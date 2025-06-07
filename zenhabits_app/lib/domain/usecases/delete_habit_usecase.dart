@@ -1,3 +1,5 @@
+import 'package:zenhabits_app/core/constants/local_errors.dart';
+import 'package:zenhabits_app/core/constants/local_messages.dart';
 import 'package:zenhabits_app/core/utils/logger.dart';
 import 'package:zenhabits_app/data/model/habit_model.dart';
 import 'package:zenhabits_app/data/repositories/habits_repository.dart';
@@ -25,10 +27,10 @@ class DeleteHabitUsecase {
     try {
       final habitModel = _toHabitModel(habit);
       await repository.deleteHabit(habitModel);
-      logger.i("Habit successfully deleted");
+      logger.i(LocalLogMessages.habitDeleted(habitModel.userId));
     } catch (e) {
-      logger.e("Error in deleting the habit");
-      throw Exception('Error al eliminar el hábito: ${e.toString()}');
+      logger.e(LocalLogMessages.deleteHabit);
+      throw Exception(LocalErrors.deleteHabit(e.toString()));
     }
   }
 }

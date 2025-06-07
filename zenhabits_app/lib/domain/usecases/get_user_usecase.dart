@@ -1,3 +1,6 @@
+import 'package:zenhabits_app/core/constants/local_errors.dart';
+import 'package:zenhabits_app/core/constants/local_messages.dart';
+import 'package:zenhabits_app/core/constants/remote_log_messages.dart';
 import 'package:zenhabits_app/core/utils/logger.dart';
 import 'package:zenhabits_app/data/model/user_model.dart';
 import 'package:zenhabits_app/data/repositories/habits_repository.dart';
@@ -35,18 +38,18 @@ class GetUserUsecase {
     try {
       final result = await repository.getUserByName(name);
       if (result == null) {
-        throw Exception('Usuario no encontrado');
+        throw Exception(LocalLogMessages.userNotFound(name));
       }
 
       final finalUser = _toUser(result);
 
       await habitRepository.syncHabitsFromRemote(_toUserModel(finalUser));
-      logger.i("Remote habits synced after fetching user ${finalUser.name}");
+      logger.i(RemoteLogMessages.syncRemoteHabits(finalUser.name));
 
       return finalUser;
     } catch (e) {
-      logger.e("Error getting user");
-      throw Exception('Error al encontrar al usuario: ${e.toString()}');
+      logger.e(LocalErrors.getUser);
+      throw Exception('El usuario no existe');
     }
   }
 }

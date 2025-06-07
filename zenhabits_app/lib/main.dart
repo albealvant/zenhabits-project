@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:zenhabits_app/core/constants/api_endpoints.dart';
 import 'package:zenhabits_app/data/database/zenhabits_database.dart';
 import 'package:zenhabits_app/data/repositories/habits_repository.dart';
 import 'package:zenhabits_app/data/api/remote_habit_datasource.dart';
@@ -24,7 +25,7 @@ void main() async {
   final database = await $FloorZenhabitsDatabase
       .databaseBuilder('ZenHabits.db')
       .build();
-  final remoteDataSource = RemoteHabitsDataSource(baseUrl: 'http://localhost:3000');
+  final remoteDataSource = RemoteHabitsDataSource(baseUrl: ApiEndpoints.base);
 
   final habitRepository = HabitRepository(habitDao: database.habitDao,remoteDataSource: remoteDataSource);
   final userRepository = UserRepository(userDao: database.userDao);
