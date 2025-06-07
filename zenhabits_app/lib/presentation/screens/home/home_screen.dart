@@ -1,0 +1,75 @@
+import 'package:flutter/material.dart';
+import 'package:zenhabits_app/presentation/widgets/user_header.dart';
+import 'package:zenhabits_app/presentation/widgets/habit_list.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0;
+  int coins = 200;
+
+  void _onItemTapped(int index) {
+    if (index == 3) {
+      Navigator.pushNamed(context, '/settings');
+    } else {
+      setState(() => _selectedIndex = index);
+    }
+  }
+
+  void _navigateToCreateHabit() {
+    Navigator.pushNamed(context, '/create-habit');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFffead2),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            UserHeader(coins: coins),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                'HÁBITOS',
+                style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold, color: Colors.brown),
+              ),
+            ),
+            Expanded(
+              child: HabitList(
+                onCoinsChanged: (value) {
+                  setState(() {
+                    coins += value;
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF582105),
+        onPressed: _navigateToCreateHabit,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        backgroundColor: const Color(0xFFaa5c21),
+        unselectedItemColor: const Color(0xFFebebeb),
+        selectedItemColor: const Color(0xFF582105),
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.task), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: ''),
+        ],
+      ),
+    );
+  }
+}

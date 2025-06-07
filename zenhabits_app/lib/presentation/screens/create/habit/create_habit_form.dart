@@ -2,19 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:zenhabits_app/domain/model/habit.dart';
 import 'package:zenhabits_app/presentation/viewmodels/habit_view_model.dart';
-import 'package:zenhabits_app/presentation/viewmodels/user_view_model.dart'; // Importar UserViewModel
+import 'package:zenhabits_app/presentation/viewmodels/user_view_model.dart';
 
-class CreateHabitScreen extends StatefulWidget {
-  const CreateHabitScreen({super.key});
+class CreateHabitForm extends StatefulWidget {
+  const CreateHabitForm({super.key});
 
   @override
-  State<CreateHabitScreen> createState() => _CreateHabitScreenState();
+  State<CreateHabitForm> createState() => _CreateHabitContentState();
 }
 
-class _CreateHabitScreenState extends State<CreateHabitScreen> {
+class _CreateHabitContentState extends State<CreateHabitForm> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   String? selectedFrequency;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -24,6 +25,8 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
   }
 
   void _createHabit(BuildContext context) async {
+    if (_isSubmitting) return;
+
     final habitViewModel = Provider.of<HabitViewModel>(context, listen: false);
     final userViewModel = Provider.of<UserViewModel>(context, listen: false);
 
@@ -46,7 +49,9 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
         const SnackBar(content: Text('Nombre y frecuencia son obligatorios')),
       );
       return;
-    };
+    }
+
+    setState(() => _isSubmitting = true);
 
     final newHabit = Habit(
       name: name,
@@ -76,10 +81,15 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al crear hábito: $e')),
       );
+    } finally {
+      setState(() => _isSubmitting = false);
     }
   }
 
-  Widget _buildTextField({required String hintText, required TextEditingController controller}) {
+  Widget _buildTextField({
+    required String hintText,
+    required TextEditingController controller,
+  }) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
@@ -100,7 +110,7 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
     required VoidCallback onPressed,
   }) {
     return ElevatedButton(
-      onPressed: onPressed,
+      onPressed: _isSubmitting ? null : onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
@@ -121,89 +131,81 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFEEEDB),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Image.asset(
-              'assets/img/monkey.png',
-              width: 160,
-              fit: BoxFit.contain,
-            ),
-
-            Container(
-              width: double.infinity,
-              color: const Color(0xFFF7B972),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: const Center(
-                child: Text(
-                  'CREAR NUEVO HÁBITO',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF4D2600),
-                  ),
-                ),
+    return Column(
+      children: [
+        Image.asset(
+          'assets/img/monkey.png',
+          width: 160,
+          fit: BoxFit.contain,
+        ),
+        Container(
+          width: double.infinity,
+          color: const Color(0xFFF7B972),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: const Center(
+            child: Text(
+              'CREAR NUEVO HÁBITO',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF4D2600),
               ),
             ),
-
-            const SizedBox(height: 24),
-
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                child: Column(
-                  children: [
-                    _buildTextField(hintText: 'Nombre', controller: nameController),
-                    const SizedBox(height: 16),
-                    _buildTextField(hintText: 'Descripción', controller: descriptionController),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        hintText: 'Frecuencia',
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: 'diario', child: Text('Diario')),
-                        DropdownMenuItem(value: 'semanal', child: Text('Semanal')),
-                        DropdownMenuItem(value: 'mensual', child: Text('Mensual')),
-                      ],
-                      value: selectedFrequency,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedFrequency = value;
-                        });
-                      },
+          ),
+        ),
+        const SizedBox(height: 24),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            child: Column(
+              children: [
+                _buildTextField(hintText: 'Nombre', controller: nameController),
+                const SizedBox(height: 16),
+                _buildTextField(hintText: 'Descripción', controller: descriptionController),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  decoration: InputDecoration(
+                    hintText: 'Frecuencia',
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
                     ),
-                    const SizedBox(height: 32),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildButton(
-                          text: 'AÑADIR',
-                          color: Colors.orange,
-                          onPressed: () => _createHabit(context),
-                        ),
-                        _buildButton(
-                          text: 'CANCELAR',
-                          color: const Color(0xFFFFC66B),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'diario', child: Text('Diario')),
+                    DropdownMenuItem(value: 'semanal', child: Text('Semanal')),
+                    DropdownMenuItem(value: 'mensual', child: Text('Mensual')),
+                  ],
+                  value: selectedFrequency,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedFrequency = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildButton(
+                      text: 'AÑADIR',
+                      color: Colors.orange,
+                      onPressed: () => _createHabit(context),
+                    ),
+                    _buildButton(
+                      text: 'CANCELAR',
+                      color: const Color(0xFFFFC66B),
+                      onPressed: () => Navigator.pop(context),
                     ),
                   ],
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }
