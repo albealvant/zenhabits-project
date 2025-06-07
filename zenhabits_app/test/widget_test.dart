@@ -9,11 +9,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:zenhabits_app/main.dart';
+import 'package:zenhabits_app/data/database/zenhabits_database.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    final database = await $FloorZenhabitsDatabase
+        .inMemoryDatabaseBuilder()
+        .build();
+
+    await tester.pumpWidget(ZenHabitsApp());
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
