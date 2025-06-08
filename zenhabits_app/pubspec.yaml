@@ -57,6 +57,7 @@ dev_dependencies:
 
   floor_generator: ^1.4.2
   build_runner: ^2.1.2
+  flutter_launcher_icons: ^0.13.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -73,6 +74,13 @@ flutter:
     - assets/img/logoZenhabits.png
     - assets/img/character.png
     - assets/img/monkey.png
+
+flutter_icons:
+  android: true
+  ios: true
+  windows:
+    generate: true
+  image_path: "assets/icon/app_icon.png"
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

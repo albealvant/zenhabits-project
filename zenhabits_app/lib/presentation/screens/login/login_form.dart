@@ -49,7 +49,7 @@ class _LoginFormState extends State<LoginForm> {
           Row(
             children: [
               Checkbox(value: true, onChanged: (_) {}),
-              const Text('Recuérdame', style: TextStyle(color: Colors.white)),
+              const Text('Recuérdame', style: TextStyle(color: Color.fromARGB(255, 81, 40, 19))),
             ],
           ),
           const SizedBox(height: 10),
