@@ -69,6 +69,8 @@ class _HabitListState extends State<HabitList> {
 
                       widget.onCoinsChanged(value == true ? 10 : -10);
                     },
+                    activeColor: Colors.orange,
+                    checkColor: Color.fromARGB(255, 81, 40, 19),
                   ),
                   title: Opacity(
                     opacity: habit.completed ? 0.5 : 1.0,

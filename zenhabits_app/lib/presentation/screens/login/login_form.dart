@@ -14,6 +14,7 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   late final LoginState _state;
   late final LoginController _controller;
+  bool _rememberMe = false;
 
   @override
   void initState() {
@@ -48,8 +49,20 @@ class _LoginFormState extends State<LoginForm> {
           const SizedBox(height: 10),
           Row(
             children: [
-              Checkbox(value: true, onChanged: (_) {}),
-              const Text('Recuérdame', style: TextStyle(color: Color.fromARGB(255, 81, 40, 19))),
+              Checkbox(
+                value: _rememberMe,
+                onChanged: (value) {
+                  setState(() {
+                    _rememberMe = value ?? false;
+                  });
+                },
+                activeColor: Colors.orange,
+                checkColor: Color.fromARGB(255, 81, 40, 19),
+              ),
+              const Text(
+                'Recuérdame',
+                style: TextStyle(color: Color.fromARGB(255, 81, 40, 19)),
+              ),
             ],
           ),
           const SizedBox(height: 10),
@@ -90,7 +103,8 @@ class _LoginFormState extends State<LoginForm> {
             child: const Text('¿Olvidaste la contraseña?',
                 style: TextStyle(color: Color.fromARGB(255, 100, 57, 31))),
           ),
-          if (isLoading) const Padding(padding: EdgeInsets.only(top: 16), child: CircularProgressIndicator()),
+          if (isLoading)
+            const Padding(padding: EdgeInsets.only(top: 16), child: CircularProgressIndicator()),
         ],
       ),
     );
