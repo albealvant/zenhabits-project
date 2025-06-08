@@ -10,6 +10,7 @@ import 'package:zenhabits_app/domain/usecases/get_habits_usecase.dart';
 import 'package:zenhabits_app/domain/usecases/update_habit_usecase.dart';
 import 'package:zenhabits_app/presentation/screens/create/habit/create_habit_screen.dart';
 import 'package:zenhabits_app/presentation/screens/home/home_screen.dart';
+import 'package:zenhabits_app/presentation/screens/goals/goals_screen.dart';
 import 'package:zenhabits_app/presentation/screens/login/login_screen.dart';
 import 'package:zenhabits_app/presentation/viewmodels/habit_view_model.dart';
 import 'package:zenhabits_app/presentation/screens/signup/signup_screen.dart';
@@ -78,6 +79,7 @@ class ZenHabitsApp extends StatelessWidget {
         '/home': (context) => const HomeScreen(),
         '/create-habit': (context) => const CreateHabitScreen(),
         '/signup': (context) => const SignUpScreen(),
+        '/goals': (context) => const GoalsScreen(),
       },
     );
   }

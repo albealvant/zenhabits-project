@@ -46,101 +46,103 @@ class _SignUpFormState extends State<SignUpForm> {
   Widget build(BuildContext context) {
     final isLoading = context.watch<UserViewModel>().isLoading.value;
 
-    return Form(
-      key: _formKey,
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-          const Text(
-            'CREAR CUENTA NUEVA',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 24,
-              color: Colors.brown,
-              decoration: TextDecoration.underline,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 70),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            const Text(
+              'CREAR CUENTA NUEVA',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 24,
+                color: Colors.brown,
+                decoration: TextDecoration.underline,
+              ),
             ),
-          ),
-          const SizedBox(height: 30),
-          _buildTextField(
-            controller: _usernameController,
-            hint: 'username',
-            validator: (value) =>
-                value!.isEmpty ? 'Ingrese un nombre de usuario' : null,
-          ),
-          const SizedBox(height: 16),
-          _buildTextField(
-            controller: _emailController,
-            hint: 'email',
-            keyboardType: TextInputType.emailAddress,
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Ingrese su correo electrónico';
-              if (!value.contains('@') || !value.contains('.')) return 'Correo inválido';
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-          _buildTextField(
-            controller: _passwordController,
-            hint: 'contraseña',
-            obscureText: true,
-            validator: (value) =>
-                value!.length < 6 ? 'Mínimo 6 caracteres' : null,
-          ),
-          const SizedBox(height: 16),
-          _buildTextField(
-            controller: _confirmPasswordController,
-            hint: 'confirmar contraseña',
-            obscureText: true,
-            validator: (value) =>
-                value != _passwordController.text ? 'No coinciden' : null,
-          ),
-          const SizedBox(height: 30),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: isLoading ? null : _submitForm,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+            const SizedBox(height: 30),
+            _buildTextField(
+              controller: _usernameController,
+              hint: 'nombre de usuario',
+              validator: (value) =>
+                  value!.isEmpty ? 'Ingrese un nombre de usuario' : null,
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              controller: _emailController,
+              hint: 'correo',
+              keyboardType: TextInputType.emailAddress,
+              validator: (value) {
+                if (value == null || value.isEmpty) return 'Ingrese su correo electrónico';
+                if (!value.contains('@') || !value.contains('.')) return 'Correo inválido';
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              controller: _passwordController,
+              hint: 'contraseña',
+              obscureText: true,
+              validator: (value) =>
+                  value!.length < 6 ? 'Mínimo 6 caracteres' : null,
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              controller: _confirmPasswordController,
+              hint: 'confirmar contraseña',
+              obscureText: true,
+              validator: (value) =>
+                  value != _passwordController.text ? 'No coinciden' : null,
+            ),
+            const SizedBox(height: 30),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : _submitForm,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                  ),
-                  child: isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                          'ACEPTAR',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                    child: isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            'ACEPTAR',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFC66B),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'CANCELAR',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFC66B),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'CANCELAR',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

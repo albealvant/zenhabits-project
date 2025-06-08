@@ -18,7 +18,7 @@ class UserViewModel extends ChangeNotifier {
     required this.getUserUsecase,
   });
 
-  Future<void> getUser(String name) async {
+  Future<User?> getUser(String name) async {
     isLoading.value = true;
     error.value = null;
     logger.i("Fetching user: $name");
@@ -27,12 +27,14 @@ class UserViewModel extends ChangeNotifier {
       final result = await getUserUsecase(name);
       currentUser.value = result;
       logger.i("User fetched: ${result.name}");
+      return result;
     } catch (e) {
       logger.e("Error fetching user: $e");
       error.value = 'Error al obtener usuario: ${e.toString()}';
     } finally {
       isLoading.value = false;
     }
+    return null;
   }
 
   Future<void> createUser(User user) async {
